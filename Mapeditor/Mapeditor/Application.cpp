@@ -38,7 +38,7 @@ Application::Application(unsigned width, unsigned height)
 
 	//GUI
 	m_guiView = m_window.getView();
-
+	m_gui.loadTiles("tileset.png", 50, 50);
 }
 
 Application::~Application()
@@ -57,7 +57,7 @@ void Application::run()
 	}
 }
 
-void Application::changeCurrentPlacingTile(int tilePlaceValue)
+void Application::changeCurrentPlacingTileValue(int tilePlaceValue)
 {
 	m_currentTilePlacingValue = tilePlaceValue;
 }

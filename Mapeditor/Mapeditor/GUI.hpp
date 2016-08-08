@@ -23,11 +23,16 @@ public:
 	void resetButtons();
 	void update(sf::Time elapsedTime);
 	void changeToMode(Mode mode);
-	void changeCurrentPlacingTile(int tilePlaceValue);
+	void changeCurrentPlacingTile(int tilePlaceValue, sf::IntRect textureRect);
+	void loadTiles(const std::string& tileset, float tile_width, float tile_height);
+
+	void nextPage();
+	void previousPage();
 
 private:
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
+	void updateTileButtons();
 
 	sf::RectangleShape m_borderShapes[3];
 
@@ -43,13 +48,20 @@ private:
 	sf::RectangleShape m_tilesBackground;
 
 	sf::Texture m_tileset;
+	sf::Vector2u m_tileSize; //tiles werden immer als 50x50 im GUI angezeigt, haben aber variable größe in der map
 
 	//Tilebuttons
 	sf::Texture m_noTileTexture;
 
 	Application *m_application;
 
-	sf::RectangleShape m_currentPlacingTileLabel;
+	sf::RectangleShape m_currentPlacingTile;
+	sf::Sprite m_currentPlacingTileFrame;
+	sf::Texture m_frameTexture;
+
+	int m_currentTilePage;
+	int m_amountOfTilePages;
+	int m_amountOfDifferentTiles;
 };
 
 #endif

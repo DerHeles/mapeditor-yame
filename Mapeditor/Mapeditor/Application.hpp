@@ -12,7 +12,7 @@ public:
 	~Application();
 	void run();
 
-	void changeCurrentPlacingTile(int tilePlaceValue);
+	void changeCurrentPlacingTileValue(int tilePlaceValue);
 
 private:
 	void update(sf::Time elapsedTime);

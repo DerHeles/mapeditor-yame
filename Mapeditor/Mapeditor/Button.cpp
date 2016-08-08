@@ -123,9 +123,11 @@ void Button::handleMouseClick(float x, float y, int button)
 				break;
 			case ARROW_LEFT:
 				std::cout << "ARROW_LEFT" << std::endl;
+				m_gui->previousPage();
 				break;
 			case ARROW_RIGHT:
 				std::cout << "ARROW_RIGHT" << std::endl;
+				m_gui->nextPage();
 				break;
 			case EMPTY_TILE:
 				std::cout << "EMPTY_TILE" << std::endl;

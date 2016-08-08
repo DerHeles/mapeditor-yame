@@ -19,6 +19,8 @@ public:
 	void reset();
 	void update(sf::Time elapsedTime);
 	void setTexture(sf::Texture *texture);
+	void setTextureRect(sf::IntRect rect);
+	void setTextureToNoTile();
 
 private:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
@@ -33,6 +35,7 @@ private:
 
 	GUI *m_gui;
 	int m_currentTileID;
+	sf::Texture *m_noTileTexture;
 };
 
 #endif
