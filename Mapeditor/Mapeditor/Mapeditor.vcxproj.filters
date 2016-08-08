@@ -36,6 +36,9 @@
     <ClCompile Include="GUI.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="TileButton.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TileMap.hpp">
@@ -54,6 +57,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GUI.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TileButton.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

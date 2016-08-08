@@ -160,3 +160,5 @@ $RECYCLE.BIN/
 
 # Mac desktop service store files
 .DS_Store
+Mapeditor/Mapeditor.VC.db
+Mapeditor/Mapeditor.VC.VC.opendb

@@ -5,9 +5,9 @@
 Application::Application(unsigned width, unsigned height)
 	:
 	m_window(sf::VideoMode(width, height), "YAME - Yet Another Map Editor (c) Tobias Heiles", sf::Style::Default),
-	m_gui(width, height),
-	m_mode(DRAG),
-	m_dragging(false)
+	m_gui(width, height, this),
+	m_dragging(false),
+	m_currentTilePlacingValue(0)
 {
 	m_window.setFramerateLimit(60);
 
@@ -20,28 +20,30 @@ Application::Application(unsigned width, unsigned height)
 		0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 		0, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1,
 		0, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1,
+		0, 2, 2, 1, 1, 1, 1, 2, 2, 6, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1,
+		0, 1, 1, 2, 2, 1, 1, 1, 1, 6, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1,
+		0, 2, 2, 1, 1, 1, 1, 2, 2, 6, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1,
+		0, 2, 2, 1, 1, 1, 1, 2, 2, 6, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1,
+		0, 1, 1, 2, 2, 1, 1, 1, 1, 6, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1,
+		0, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1,
+		0, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1,
 		0, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1,
 		0, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1,
-		0, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1,
-		0, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1,
-		0, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1,
-		0, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1,
-		0, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1,
-		0, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1,
-		0, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 1, 1,
-		0, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1,
-		0, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1,
+		0, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 3, 1, 2, 2, 1, 1,
+		0, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 7,
 	};
-	m_map.load("tileset.png", sf::Vector2u(64, 64), level, 21, 16);
+	m_map.load("tileset.png", sf::Vector2u(50, 50), level, 21, 16);
+	m_view.setSize(m_window.getSize().x - 250.f, m_window.getSize().y);
 	m_view.setViewport(sf::FloatRect(1.f - (static_cast<float>(width) - 250.f) / static_cast<float>(width), 0.f, (static_cast<float>(width) - 250.f) / static_cast<float>(width), 1.f));
 
 	//GUI
 	m_guiView = m_window.getView();
+
 }
 
 Application::~Application()
 {
-	
+
 }
 
 void Application::run()
@@ -55,8 +57,14 @@ void Application::run()
 	}
 }
 
+void Application::changeCurrentPlacingTile(int tilePlaceValue)
+{
+	m_currentTilePlacingValue = tilePlaceValue;
+}
+
 void Application::update(sf::Time elapsedTime)
 {
+	m_gui.update(elapsedTime);
 }
 
 void Application::processEvents()
@@ -70,7 +78,7 @@ void Application::processEvents()
 				m_window.close();
 				break;
 			case sf::Event::MouseMoved:
-				//std::cout << "moved";
+				handleMouseMove(event);
 				break;
 			case sf::Event::MouseButtonPressed:
 				handleMouseButtonPress(event);
@@ -166,6 +174,10 @@ bool Application::isAboveGUI(int x, int y) const
 	return (0 < x && x <= 260 && 0 < y && y < m_window.getSize().y);
 }
 
+void Application::extractTilesFromTileset(const std::string& tileset, sf::Vector2u tileSize)
+{
+}
+
 void Application::render()
 {
 	m_window.clear(sf::Color(100, 100, 100));
@@ -181,6 +193,17 @@ void Application::render()
 	m_window.display();
 }
 
+void Application::handleMouseMove(const sf::Event& event)
+{
+	if (isAboveGUI(event.mouseMove.x, event.mouseMove.y))
+	{
+		sf::Vector2f position = m_window.mapPixelToCoords(sf::Vector2i(event.mouseMove.x, event.mouseMove.y), m_guiView);
+		m_gui.handleMouseMove(position.x, position.y);
+	}
+	else
+		m_gui.resetButtons();
+}
+
 void Application::handleMouseButtonPress(const sf::Event& event)
 {
 	m_dragging = false;
@@ -193,17 +216,11 @@ void Application::handleMouseButtonPress(const sf::Event& event)
 		sf::Vector2f position = m_window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y), m_view);
 		//m_map.changeTileFromMousePosition(position.x, position.y, event.mouseButton.button);
 
-		if (m_mode == DRAG)
-		{
-			m_dragStart.x = position.x;
-			m_dragStart.y= position.y;
+		m_dragStart.x = position.x;
+		m_dragStart.y= position.y;
 
-			m_dragging = true;
-		}
-		else if (m_mode == STENCIL)
-		{
+		m_dragging = true;
 
-		}
 	}
 	//Mouse over GUI
 	else if(isAboveGUI(event.mouseButton.x, event.mouseButton.y))
@@ -223,26 +240,19 @@ void Application::handleMouseButtonRelease(const sf::Event& event)
 		sf::Vector2f position = m_window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y), m_view);
 		 //m_map.changeTileFromMousePosition(position.x, position.y, event.mouseButton.button);
 
-		if (m_mode == DRAG)
-		{
 			//std::cout << "RELEASED DRAG" << std::endl;
-			if(m_dragging)
-			{
-				m_dragEnd.x = position.x;
-				m_dragEnd.y= position.y;
-
-				sf::FloatRect rect;
-				rect.left = std::min(m_dragStart.x, m_dragEnd.x);
-				rect.top = std::min(m_dragStart.y, m_dragEnd.y);
-				rect.width = std::abs(m_dragStart.x - m_dragEnd.x);
-				rect.height = std::abs(m_dragStart.y - m_dragEnd.y);
-
-				m_map.changeTilesFromRectangle(rect, event.mouseButton.button);				
-			}
-		}
-		else if (m_mode == STENCIL)
+		if(m_dragging)
 		{
+			m_dragEnd.x = position.x;
+			m_dragEnd.y= position.y;
 
+			sf::FloatRect rect;
+			rect.left = std::min(m_dragStart.x, m_dragEnd.x);
+			rect.top = std::min(m_dragStart.y, m_dragEnd.y);
+			rect.width = std::abs(m_dragStart.x - m_dragEnd.x);
+			rect.height = std::abs(m_dragStart.y - m_dragEnd.y);
+
+			m_map.changeTilesFromRectangle(rect, m_currentTilePlacingValue);
 		}
 	}
 	//Mouse over GUI
