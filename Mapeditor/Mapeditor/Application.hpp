@@ -35,7 +35,10 @@ private:
 	sf::View m_view;
 
 	int m_currentTilePlacingValue;
-	//sf::RectangleShape m_cursorShape; über GUI geregelt
+	sf::RectangleShape m_selectedTilesShape;
+	sf::Vector2u m_tileSize;
+	bool m_showSelectedTile;
+	sf::Vector2u m_mapSize;
 
 	//GUI
 	GUI m_gui;

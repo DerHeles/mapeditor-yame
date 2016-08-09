@@ -80,7 +80,7 @@ GUI::GUI(unsigned width, unsigned height, Application *application)
 	m_currentPlacingTileFrame.setTexture(m_frameTexture);
 	m_currentPlacingTileFrame.setPosition(20.f, 285.f);
 
-
+	m_tileLayerButtons[0]->setInactive();
 }
 
 GUI::~GUI()
@@ -271,6 +271,11 @@ void GUI::nextPage()
 		return;
 	++m_currentTilePage;
 	updateTileButtons();
+
+	m_tileLayerButtons[0]->setActive();
+
+	if ((m_currentTilePage + 1) == m_amountOfTilePages)
+		m_tileLayerButtons[1]->setInactive();
 }
 
 void GUI::previousPage()
@@ -280,6 +285,11 @@ void GUI::previousPage()
 	--m_currentTilePage;
 	updateTileButtons();
 
+	m_tileLayerButtons[1]->setActive();
+
 	for (auto button : m_tileButtons)
 		button->setTexture(&m_tileset);
+
+	if (m_currentTilePage == 0)
+		m_tileLayerButtons[0]->setInactive();
 }

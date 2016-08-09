@@ -1,5 +1,4 @@
 #include "Application.hpp"
-#include <iostream>
 #include "Configuration.hpp"
 
 Application::Application(unsigned width, unsigned height)
@@ -7,7 +6,8 @@ Application::Application(unsigned width, unsigned height)
 	m_window(sf::VideoMode(width, height), "YAME - Yet Another Map Editor (c) Tobias Heiles", sf::Style::Default),
 	m_gui(width, height, this),
 	m_dragging(false),
-	m_currentTilePlacingValue(0)
+	m_currentTilePlacingValue(-1),
+	m_showSelectedTile(false)
 {
 	m_window.setFramerateLimit(60);
 
@@ -39,6 +39,15 @@ Application::Application(unsigned width, unsigned height)
 	//GUI
 	m_guiView = m_window.getView();
 	m_gui.loadTiles("tileset.png", 50, 50);
+
+	m_selectedTilesShape.setSize(sf::Vector2f(50, 50));
+	m_selectedTilesShape.setFillColor(sf::Color(255, 100, 100, 180));
+
+	m_tileSize.x = 50;
+	m_tileSize.y = 50;
+
+	m_mapSize.x = 21;
+	m_mapSize.y = 16;
 }
 
 Application::~Application()
@@ -185,6 +194,8 @@ void Application::render()
 	//TileMap
 	m_window.setView(m_view);
 	m_window.draw(m_map);
+	if (m_showSelectedTile)
+		m_window.draw(m_selectedTilesShape);
 
 	//GUI
 	m_window.setView(m_guiView);
@@ -195,18 +206,93 @@ void Application::render()
 
 void Application::handleMouseMove(const sf::Event& event)
 {
+	m_showSelectedTile = false;
 	if (isAboveGUI(event.mouseMove.x, event.mouseMove.y))
 	{
 		sf::Vector2f position = m_window.mapPixelToCoords(sf::Vector2i(event.mouseMove.x, event.mouseMove.y), m_guiView);
 		m_gui.handleMouseMove(position.x, position.y);
 	}
 	else
+	{
 		m_gui.resetButtons();
+		if(isAboveMapArea(event.mouseMove.x, event.mouseMove.y))
+		{
+			if(m_dragging)
+			{
+				sf::Vector2f position = m_window.mapPixelToCoords(sf::Vector2i(event.mouseMove.x, event.mouseMove.y), m_view);
+				sf::FloatRect rect;
+				rect.left = std::min(m_dragStart.x, position.x);
+				rect.top = std::min(m_dragStart.y, position.y);
+				rect.width = std::abs(m_dragStart.x - position.x);
+				rect.height = std::abs(m_dragStart.y - position.y);
+
+				int realX, realY, realX2, realY2;
+
+				realX = rect.left / m_tileSize.x;
+				realY = rect.top / m_tileSize.y;
+				realX2 = (rect.left + rect.width) / m_tileSize.x;
+				realY2 = (rect.top + rect.height) / m_tileSize.y;
+
+				int w = rect.width / m_tileSize.x;
+				int h = rect.height / m_tileSize.y;
+
+				/*if (realX < 0 || realX >= m_mapSize.x || realY < 0 || realY >= m_mapSize.y)
+				{
+					m_showSelectedTile = true;
+					return;
+				}
+
+				if (realX2 < 0 || realX2 >= m_mapSize.x || realY2 < 0 || realY2 >= m_mapSize.y)
+				{
+					m_showSelectedTile = true;
+					return;
+				}*/
+
+				if (realX < 0)
+					realX = 0;
+				if (realX >= m_mapSize.x)
+					realX = m_mapSize.x-1;
+				if (realY < 0)
+					realY = 0;
+				if (realY >= m_mapSize.y)
+					realY = m_mapSize.y-1;
+
+
+				if (realX2 < 0)
+					realX2 = 0;
+				if (realX2 >= m_mapSize.x)
+					realX2 = m_mapSize.x-1;
+				if (realY2 < 0)
+					realY2 = 0;
+				if (realY2 >= m_mapSize.y)
+					realY2 = m_mapSize.y-1;
+
+
+				m_selectedTilesShape.setPosition(realX * m_tileSize.x, realY * m_tileSize.x);
+				m_selectedTilesShape.setSize(sf::Vector2f((1 + realX2 - realX) * m_tileSize.x, (1 + realY2 - realY) * m_tileSize.y));
+				m_showSelectedTile = true;
+			}
+			else
+			{
+				sf::Vector2f position = m_window.mapPixelToCoords(sf::Vector2i(event.mouseMove.x, event.mouseMove.y), m_view);
+				int realX, realY;
+				realX = position.x / m_tileSize.x;
+				realY = position.y / m_tileSize.y;
+
+				if (realX < 0 || realX >= m_mapSize.x || realY < 0 || realY >= m_mapSize.y)
+					return;
+
+				m_showSelectedTile = true;
+				m_selectedTilesShape.setPosition(realX * m_tileSize.x, realY * m_tileSize.y);
+				m_selectedTilesShape.setSize(sf::Vector2f(m_tileSize.x, m_tileSize.y));
+			}
+		}
+	}
 }
 
 void Application::handleMouseButtonPress(const sf::Event& event)
 {
-	m_dragging = false;
+	m_dragging = false; //nötig?
 	//std::cout << "PRESSED" << std::endl;
 	//Mouse over Map Area
 	if (isAboveMapArea(event.mouseButton.x, event.mouseButton.y))
@@ -218,6 +304,14 @@ void Application::handleMouseButtonPress(const sf::Event& event)
 
 		m_dragStart.x = position.x;
 		m_dragStart.y= position.y;
+
+		//innerhalb der map klicken um dragging zu starten
+		int realX, realY;
+		realX = m_dragStart.x / m_tileSize.x;
+		realY = m_dragStart.y / m_tileSize.y;
+
+		if (realX < 0 || realX >= m_mapSize.x || realY < 0 || realY >= m_mapSize.y)
+			return;
 
 		m_dragging = true;
 
@@ -232,6 +326,8 @@ void Application::handleMouseButtonPress(const sf::Event& event)
 
 void Application::handleMouseButtonRelease(const sf::Event& event)
 {
+
+	m_showSelectedTile = false;
 	//std::cout << "RELEASED" << std::endl;
 	if (isAboveMapArea(event.mouseButton.x, event.mouseButton.y))
 	{
@@ -241,19 +337,32 @@ void Application::handleMouseButtonRelease(const sf::Event& event)
 		 //m_map.changeTileFromMousePosition(position.x, position.y, event.mouseButton.button);
 
 			//std::cout << "RELEASED DRAG" << std::endl;
-		if(m_dragging)
+		if(m_dragging) //nötig?
 		{
 			m_dragEnd.x = position.x;
 			m_dragEnd.y= position.y;
 
-			sf::FloatRect rect;
-			rect.left = std::min(m_dragStart.x, m_dragEnd.x);
-			rect.top = std::min(m_dragStart.y, m_dragEnd.y);
-			rect.width = std::abs(m_dragStart.x - m_dragEnd.x);
-			rect.height = std::abs(m_dragStart.y - m_dragEnd.y);
+			if (m_dragStart == m_dragEnd && m_currentTilePlacingValue >= 0)
+				m_map.changeTileFromMousePosition(position.x, position.y, m_currentTilePlacingValue);
+			else
+			{
+				sf::FloatRect rect;
+				rect.left = std::min(m_dragStart.x, m_dragEnd.x);
+				rect.top = std::min(m_dragStart.y, m_dragEnd.y);
+				rect.width = std::abs(m_dragStart.x - m_dragEnd.x);
+				rect.height = std::abs(m_dragStart.y - m_dragEnd.y);
 
-			m_map.changeTilesFromRectangle(rect, m_currentTilePlacingValue);
+				if(rect.left < 0)
+				{
+					rect.width = rect.left + rect.width;
+					rect.left = 0;
+				}
+
+				if(m_currentTilePlacingValue >= 0) //nur falls auch TileWert ausgewählt wurde
+					m_map.changeTilesFromRectangle(rect, m_currentTilePlacingValue);
+			}
 		}
+		m_showSelectedTile = true;
 	}
 	//Mouse over GUI
 	else if (isAboveGUI(event.mouseButton.x, event.mouseButton.y))
@@ -261,5 +370,18 @@ void Application::handleMouseButtonRelease(const sf::Event& event)
 		sf::Vector2f position = m_window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y), m_guiView);
 		//m_gui.handleMouseClick(position.x, position.y, event.mouseButton.button);
 	}
+
+	//reset shape
+	sf::Vector2f position = m_window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y), m_view);
+	int realX, realY;
+	realX = position.x / m_tileSize.x;
+	realY = position.y / m_tileSize.y;
+
+	if (realX < 0 || realX >= m_mapSize.x || realY < 0 || realY >= m_mapSize.y)
+		return;
+
+	m_selectedTilesShape.setPosition(realX * m_tileSize.x, realY * m_tileSize.y);
+	m_selectedTilesShape.setSize(sf::Vector2f(m_tileSize.x, m_tileSize.y));
+
 	m_dragging = false;
 }
