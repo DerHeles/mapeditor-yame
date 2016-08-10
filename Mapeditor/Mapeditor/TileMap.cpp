@@ -126,7 +126,7 @@ std::string TileMap::readString(std::ifstream* file)
 	return str;
 }
 
-void TileMap::changeTileFromMousePosition(int x, int y, int value)
+void TileMap::changeTileFromMousePosition(float x, float y, int value)
 {
 	int realX, realY;
 	realX = x / m_tileSize.x;

@@ -27,6 +27,7 @@ private:
 
 	bool isAboveMapArea(int x, int y) const;
 	bool isAboveGUI(int x, int y) const;
+	bool aboveValidMapArea(float x, float y) const;
 
 	void extractTilesFromTileset(const std::string& tileset, sf::Vector2u tileSize);
 

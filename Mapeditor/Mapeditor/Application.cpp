@@ -1,5 +1,6 @@
 #include "Application.hpp"
 #include "Configuration.hpp"
+#include <iostream>
 
 Application::Application(unsigned width, unsigned height)
 	:
@@ -183,6 +184,13 @@ bool Application::isAboveGUI(int x, int y) const
 	return (0 < x && x <= 260 && 0 < y && y < m_window.getSize().y);
 }
 
+bool Application::aboveValidMapArea(float x, float y) const
+{
+	if (x < 0 || x >= (m_mapSize.x * m_tileSize.x) || y < 0 || y >= (m_mapSize.y * m_tileSize.y))
+		return false;
+	return true;
+}
+
 void Application::extractTilesFromTileset(const std::string& tileset, sf::Vector2u tileSize)
 {
 }
@@ -206,11 +214,11 @@ void Application::render()
 
 void Application::handleMouseMove(const sf::Event& event)
 {
-	m_showSelectedTile = false;
 	if (isAboveGUI(event.mouseMove.x, event.mouseMove.y))
 	{
 		sf::Vector2f position = m_window.mapPixelToCoords(sf::Vector2i(event.mouseMove.x, event.mouseMove.y), m_guiView);
 		m_gui.handleMouseMove(position.x, position.y);
+		m_showSelectedTile = false;
 	}
 	else
 	{
@@ -226,6 +234,27 @@ void Application::handleMouseMove(const sf::Event& event)
 				rect.width = std::abs(m_dragStart.x - position.x);
 				rect.height = std::abs(m_dragStart.y - position.y);
 
+				//horizonzal
+				if (rect.left < 0)
+				{
+					rect.width = rect.left + rect.width;
+					rect.left = 0;
+				}
+				else if ((rect.left + rect.width) >(m_mapSize.x * m_tileSize.x))
+				{
+					rect.width = (m_mapSize.x * m_tileSize.x) - rect.left - 1;
+				}
+				//vertikal
+				if (rect.top < 0)
+				{
+					rect.height = rect.top + rect.height;
+					rect.top = 0;
+				}
+				else if ((rect.top + rect.height) >(m_mapSize.y * m_tileSize.y))
+				{
+					rect.height = (m_mapSize.y * m_tileSize.y) - rect.top - 1;
+				}
+
 				int realX, realY, realX2, realY2;
 
 				realX = rect.left / m_tileSize.x;
@@ -233,58 +262,29 @@ void Application::handleMouseMove(const sf::Event& event)
 				realX2 = (rect.left + rect.width) / m_tileSize.x;
 				realY2 = (rect.top + rect.height) / m_tileSize.y;
 
-				int w = rect.width / m_tileSize.x;
-				int h = rect.height / m_tileSize.y;
-
-				/*if (realX < 0 || realX >= m_mapSize.x || realY < 0 || realY >= m_mapSize.y)
-				{
-					m_showSelectedTile = true;
-					return;
-				}
-
-				if (realX2 < 0 || realX2 >= m_mapSize.x || realY2 < 0 || realY2 >= m_mapSize.y)
-				{
-					m_showSelectedTile = true;
-					return;
-				}*/
-
-				if (realX < 0)
-					realX = 0;
-				if (realX >= m_mapSize.x)
-					realX = m_mapSize.x-1;
-				if (realY < 0)
-					realY = 0;
-				if (realY >= m_mapSize.y)
-					realY = m_mapSize.y-1;
-
-
-				if (realX2 < 0)
-					realX2 = 0;
-				if (realX2 >= m_mapSize.x)
-					realX2 = m_mapSize.x-1;
-				if (realY2 < 0)
-					realY2 = 0;
-				if (realY2 >= m_mapSize.y)
-					realY2 = m_mapSize.y-1;
-
-
 				m_selectedTilesShape.setPosition(realX * m_tileSize.x, realY * m_tileSize.x);
 				m_selectedTilesShape.setSize(sf::Vector2f((1 + realX2 - realX) * m_tileSize.x, (1 + realY2 - realY) * m_tileSize.y));
 				m_showSelectedTile = true;
 			}
-			else
+			else //not dragging
 			{
 				sf::Vector2f position = m_window.mapPixelToCoords(sf::Vector2i(event.mouseMove.x, event.mouseMove.y), m_view);
-				int realX, realY;
-				realX = position.x / m_tileSize.x;
-				realY = position.y / m_tileSize.y;
 
-				if (realX < 0 || realX >= m_mapSize.x || realY < 0 || realY >= m_mapSize.y)
-					return;
+				if (aboveValidMapArea(position.x, position.y))
+				{
+					int realX, realY;
+					realX = position.x / m_tileSize.x;
+					realY = position.y / m_tileSize.y;
 
-				m_showSelectedTile = true;
-				m_selectedTilesShape.setPosition(realX * m_tileSize.x, realY * m_tileSize.y);
-				m_selectedTilesShape.setSize(sf::Vector2f(m_tileSize.x, m_tileSize.y));
+					if (realX < 0 || realX >= m_mapSize.x || realY < 0 || realY >= m_mapSize.y)
+						return;
+
+					m_showSelectedTile = true;
+					m_selectedTilesShape.setPosition(realX * m_tileSize.x, realY * m_tileSize.y);
+					m_selectedTilesShape.setSize(sf::Vector2f(m_tileSize.x, m_tileSize.y));
+				}
+				else
+					m_showSelectedTile = false;
 			}
 		}
 	}
@@ -293,25 +293,20 @@ void Application::handleMouseMove(const sf::Event& event)
 void Application::handleMouseButtonPress(const sf::Event& event)
 {
 	m_dragging = false; //nötig?
-	//std::cout << "PRESSED" << std::endl;
+
 	//Mouse over Map Area
 	if (isAboveMapArea(event.mouseButton.x, event.mouseButton.y))
 	{
-		//std::cout << "t1" << std::endl;
 		//calculate tile
 		sf::Vector2f position = m_window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y), m_view);
-		//m_map.changeTileFromMousePosition(position.x, position.y, event.mouseButton.button);
-
-		m_dragStart.x = position.x;
-		m_dragStart.y= position.y;
 
 		//innerhalb der map klicken um dragging zu starten
-		int realX, realY;
-		realX = m_dragStart.x / m_tileSize.x;
-		realY = m_dragStart.y / m_tileSize.y;
-
-		if (realX < 0 || realX >= m_mapSize.x || realY < 0 || realY >= m_mapSize.y)
+		if (!aboveValidMapArea(position.x, position.y))
 			return;
+
+		std::cout << "PRESS" << std::endl;
+		m_dragStart.x = position.x;
+		m_dragStart.y= position.y;
 
 		m_dragging = true;
 
@@ -326,62 +321,90 @@ void Application::handleMouseButtonPress(const sf::Event& event)
 
 void Application::handleMouseButtonRelease(const sf::Event& event)
 {
-
-	m_showSelectedTile = false;
-	//std::cout << "RELEASED" << std::endl;
-	if (isAboveMapArea(event.mouseButton.x, event.mouseButton.y))
+	if (isAboveMapArea(event.mouseButton.x, event.mouseButton.y) && m_dragging)
 	{
-		//std::cout << "t2" << std::endl;
 		//calculate tile
 		sf::Vector2f position = m_window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y), m_view);
-		 //m_map.changeTileFromMousePosition(position.x, position.y, event.mouseButton.button);
 
-			//std::cout << "RELEASED DRAG" << std::endl;
-		if(m_dragging) //nötig?
+		if(aboveValidMapArea(position.x, position.y))
 		{
 			m_dragEnd.x = position.x;
-			m_dragEnd.y= position.y;
+			m_dragEnd.y = position.y;
 
-			if (m_dragStart == m_dragEnd && m_currentTilePlacingValue >= 0)
-				m_map.changeTileFromMousePosition(position.x, position.y, m_currentTilePlacingValue);
-			else
+			if(m_currentTilePlacingValue >= 0)//nur falls auch TileWert ausgewählt wurde
 			{
-				sf::FloatRect rect;
-				rect.left = std::min(m_dragStart.x, m_dragEnd.x);
-				rect.top = std::min(m_dragStart.y, m_dragEnd.y);
-				rect.width = std::abs(m_dragStart.x - m_dragEnd.x);
-				rect.height = std::abs(m_dragStart.y - m_dragEnd.y);
-
-				if(rect.left < 0)
+				if(m_dragStart == m_dragEnd)
+					m_map.changeTileFromMousePosition(position.x, position.y, m_currentTilePlacingValue);
+				else
 				{
-					rect.width = rect.left + rect.width;
-					rect.left = 0;
-				}
+					sf::FloatRect rect;
+					rect.left = std::min(m_dragStart.x, m_dragEnd.x);
+					rect.top = std::min(m_dragStart.y, m_dragEnd.y);
+					rect.width = std::abs(m_dragStart.x - m_dragEnd.x);
+					rect.height = std::abs(m_dragStart.y - m_dragEnd.y);
 
-				if(m_currentTilePlacingValue >= 0) //nur falls auch TileWert ausgewählt wurde
 					m_map.changeTilesFromRectangle(rect, m_currentTilePlacingValue);
+				}
+			}
+			int realX, realY;
+			realX = position.x / m_tileSize.x;
+			realY = position.y / m_tileSize.y;
+
+			if (realX < 0 || realX >= m_mapSize.x || realY < 0 || realY >= m_mapSize.y)
+				return;
+
+			m_selectedTilesShape.setPosition(realX * m_tileSize.x, realY * m_tileSize.y);
+			m_selectedTilesShape.setSize(sf::Vector2f(m_tileSize.x, m_tileSize.y));
+		}
+		else
+		{
+			m_showSelectedTile = false;
+
+			m_dragEnd.x = position.x;
+			m_dragEnd.y = position.y;
+
+			if (m_currentTilePlacingValue >= 0)//nur falls auch TileWert ausgewählt wurde
+			{
+				if (m_dragStart != m_dragEnd)
+				{
+					sf::FloatRect rect;
+					rect.left = std::min(m_dragStart.x, m_dragEnd.x);
+					rect.top = std::min(m_dragStart.y, m_dragEnd.y);
+					rect.width = std::abs(m_dragStart.x - m_dragEnd.x);
+					rect.height = std::abs(m_dragStart.y - m_dragEnd.y);
+
+					//horizonzal
+					if(rect.left < 0)
+					{
+						rect.width = rect.left + rect.width;
+						rect.left = 0;
+					}
+					else if((rect.left + rect.width) > (m_mapSize.x * m_tileSize.x))
+					{
+						rect.width = (m_mapSize.x * m_tileSize.x) - rect.left - 1;
+					}
+					//vertikal
+					if(rect.top < 0)
+					{
+						rect.height = rect.top + rect.height;
+						rect.top = 0;
+					}
+					else if((rect.top + rect.height) > (m_mapSize.y * m_tileSize.y))
+					{
+						rect.height = (m_mapSize.y * m_tileSize.y) - rect.top - 1;
+					}
+					m_map.changeTilesFromRectangle(rect, m_currentTilePlacingValue);
+				}
 			}
 		}
-		m_showSelectedTile = true;
+
 	}
 	//Mouse over GUI
 	else if (isAboveGUI(event.mouseButton.x, event.mouseButton.y))
 	{
-		sf::Vector2f position = m_window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y), m_guiView);
-		//m_gui.handleMouseClick(position.x, position.y, event.mouseButton.button);
+		/*m_showSelectedTile = false;
+		m_selectedTilesShape.setSize(sf::Vector2f(m_tileSize.x, m_tileSize.y));*/
 	}
-
-	//reset shape
-	sf::Vector2f position = m_window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y), m_view);
-	int realX, realY;
-	realX = position.x / m_tileSize.x;
-	realY = position.y / m_tileSize.y;
-
-	if (realX < 0 || realX >= m_mapSize.x || realY < 0 || realY >= m_mapSize.y)
-		return;
-
-	m_selectedTilesShape.setPosition(realX * m_tileSize.x, realY * m_tileSize.y);
-	m_selectedTilesShape.setSize(sf::Vector2f(m_tileSize.x, m_tileSize.y));
 
 	m_dragging = false;
 }

@@ -12,7 +12,7 @@ public:
 	~TileMap();
 	void changeTile(unsigned int x, unsigned int y, int value);
 	bool load(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height);
-	void changeTileFromMousePosition(int x, int y, int value);
+	void changeTileFromMousePosition(float x, float y, int value);
 	void changeTilesFromRectangle(sf::FloatRect rect, int value);
 
 	void loadFromFile(std::ifstream *file);
