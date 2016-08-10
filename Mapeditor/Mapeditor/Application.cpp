@@ -1,6 +1,7 @@
 #include "Application.hpp"
 #include "Configuration.hpp"
 #include <iostream>
+#include "Helper.hpp"
 
 Application::Application(unsigned width, unsigned height)
 	:
@@ -176,12 +177,12 @@ void Application::handleKey(const sf::Event& event)
 
 bool Application::isAboveMapArea(int x, int y) const
 {
-	return (260 < x && x < m_window.getSize().x && 0 < y && y < m_window.getSize().y);
+	return (hlp::gui_width < x && x < m_window.getSize().x && 0 < y && y < m_window.getSize().y);
 }
 
 bool Application::isAboveGUI(int x, int y) const
 {
-	return (0 < x && x <= 260 && 0 < y && y < m_window.getSize().y);
+	return (0 < x && x <= hlp::gui_width && 0 < y && y < m_window.getSize().y);
 }
 
 bool Application::aboveValidMapArea(float x, float y) const

@@ -11,8 +11,8 @@ Button::Button(float x, float y, ButtonAction action, GUI *gui)
 	m_gui(gui)
 {
 	setPosition(x, y);
-	std::string activeTexture = "resources/button_";
-	std::string inactiveTexture = "resources/button_";
+	std::string activeTexture = "resources/";
+	std::string inactiveTexture = "resources/";
 	switch(action)
 	{
 	case NEW:
@@ -32,12 +32,12 @@ Button::Button(float x, float y, ButtonAction action, GUI *gui)
 		inactiveTexture.append("config_gray.png");
 		break;
 	case TILES:
-		activeTexture.append("tiles.png");
-		inactiveTexture.append("tiles_gray.png");
+		activeTexture.append("tile_view.png");
+		inactiveTexture.append("tile_view_gray.png");
 		break;
 	case COLLISION:
-		activeTexture.append("collision.png");
-		inactiveTexture.append("collision_gray.png");
+		activeTexture.append("collision_view.png");
+		inactiveTexture.append("collision_view_gray.png");
 		break;
 	case ARROW_LEFT:
 		activeTexture.append("arrow_left.png");
@@ -170,13 +170,13 @@ void Button::update(sf::Time elapsedTime)
 	}
 }
 
-void Button::setActive()
+void Button::activate()
 {
 	m_active = true;
 	m_sprite.setTexture(m_activeTexture);
 }
 
-void Button::setInactive()
+void Button::deactivate()
 {
 	m_active = false;
 	m_sprite.setTexture(m_inactiveTexture);

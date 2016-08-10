@@ -6,4 +6,6 @@ namespace hlp
 	{
 		return false;
 	}*/
+
+	int gui_width = 248;
 }

@@ -1,49 +1,60 @@
 #include "GUI.hpp"
 #include <iostream>
 #include "Application.hpp"
+#include "Helper.hpp"
 
-GUI::GUI(unsigned width, unsigned height, Application *application)
+GUI::GUI(unsigned int width, unsigned int height, Application *application)
 	:
 	m_mode(Mode::TILE),
 	m_application(application)
 {
-	m_borderShapes[0].setSize(sf::Vector2f(10.f, height));
-	m_borderShapes[0].setPosition(250.f, 0.f);
+	m_borderShapes[0].setSize(sf::Vector2f(240.f, 8.f));
+	m_borderShapes[0].setPosition(0.f, 0.f);
 	m_borderShapes[0].setFillColor(sf::Color::Black);
 
-	m_borderShapes[1].setSize(sf::Vector2f(250, 10.f));
-	m_borderShapes[1].setPosition(0.f, 140.f);
+	m_borderShapes[1].setSize(sf::Vector2f(240, 8.f));
+	m_borderShapes[1].setPosition(0.f, 142.f);
 	m_borderShapes[1].setFillColor(sf::Color::Black);
 
-	m_borderShapes[2].setSize(sf::Vector2f(250, 10.f));
-	m_borderShapes[2].setPosition(0.f, 265.f);
+	m_borderShapes[2].setSize(sf::Vector2f(240, 8.f));
+	m_borderShapes[2].setPosition(0.f, 221.f);
 	m_borderShapes[2].setFillColor(sf::Color::Black);
 
+	m_borderShapes[3].setSize(sf::Vector2f(240, 8.f));
+	m_borderShapes[3].setPosition(0.f, 300.f);
+	m_borderShapes[3].setFillColor(sf::Color::Black);
+
+	m_borderShapes[4].setSize(sf::Vector2f(240, 8.f));
+	m_borderShapes[4].setPosition(0.f, 612.f);
+	m_borderShapes[4].setFillColor(sf::Color::Black);
+
+	m_borderShapes[5].setSize(sf::Vector2f(8, 620));
+	m_borderShapes[5].setPosition(240.f, 0.f);
+	m_borderShapes[5].setFillColor(sf::Color::Black);
+
+
+
+
 	//wegen ursprünglichem sf::text als button*
-	m_buttons.push_back(new Button(10.f, 10.f, Button::ButtonAction::NEW, this));
-	m_buttons.push_back(new Button(130.f, 10.f, Button::ButtonAction::LOAD, this));
-	m_buttons.push_back(new Button(10.f, 75.f, Button::ButtonAction::CONFIG, this));
-	m_buttons.push_back(new Button(130.f, 75.f, Button::ButtonAction::SAVE, this));
-	m_buttons.push_back(new Button(10.f, 200.f, Button::ButtonAction::TILES, this));
-	m_buttons.push_back(new Button(130.f, 200.f, Button::ButtonAction::COLLISION, this));
+	m_buttons.push_back(new Button(8.f, 16.f, Button::ButtonAction::NEW, this));
+	m_buttons.push_back(new Button(124.f, 16.f, Button::ButtonAction::LOAD, this));
+	m_buttons.push_back(new Button(8.f, 79.f, Button::ButtonAction::CONFIG, this));
+	m_buttons.push_back(new Button(124.f, 79.f, Button::ButtonAction::SAVE, this));
+	m_buttons.push_back(new Button(8.f, 158.f, Button::ButtonAction::TILES, this));
+	m_buttons.push_back(new Button(124.f, 158.f, Button::ButtonAction::COLLISION, this));
 
 
 	//m_tileLayerButtons.push_back(new Button(57.f, 298.f, Button::ButtonAction::ARROW_LEFT, this));
-	m_tileLayerButtons.push_back(new Button(100.f, 298.f, Button::ButtonAction::ARROW_LEFT, this));
-	m_tileLayerButtons.push_back(new Button(162.f, 298.f, Button::ButtonAction::ARROW_RIGHT, this));
+	m_tileLayerButtons.push_back(new Button(116.f, 326.f, Button::ButtonAction::ARROW_LEFT, this));
+	m_tileLayerButtons.push_back(new Button(178.f, 326.f, Button::ButtonAction::ARROW_RIGHT, this));
 
-	m_collisionLayerButtons.push_back(new Button(10.f, 285.f, Button::ButtonAction::PLACE, this));
-	m_collisionLayerButtons.push_back(new Button(130.f, 285.f, Button::ButtonAction::DELETE, this));
+	m_collisionLayerButtons.push_back(new Button(8.f, 237.f, Button::ButtonAction::PLACE, this));
+	m_collisionLayerButtons.push_back(new Button(124.f, 237.f, Button::ButtonAction::DELETE, this));
 
-	if (!m_layerTexture.loadFromFile("resources/label_layers.png"))
-		std::cerr << "GUI ctor error loading layer texture!" << std::endl;
-	m_layerSprite.setTexture(m_layerTexture);
-	m_layerSprite.setPosition(80, 160);
-
-	m_tilesBackground.setPosition(10.f, 350.f);
-	m_tilesBackground.setSize(sf::Vector2f(230.f, 230.f));
+	m_tilesBackground.setPosition(8.f, 380.f);
+	m_tilesBackground.setSize(sf::Vector2f(224.f, 224.f));
 	m_tilesBackground.setFillColor(sf::Color(60, 60, 60));
-	m_buttons[4]->setInactive();
+	m_buttons[4]->deactivate();
 
 	if (!m_noTileTexture.loadFromFile("resources/button_no_tile.png"))
 		std::cerr << "GUI ctor error loading noTile texture!" << std::endl;
@@ -51,36 +62,38 @@ GUI::GUI(unsigned width, unsigned height, Application *application)
 	//TILE BUTTONS
 	int id = 0;
 
-	m_tileButtons.push_back(new TileButton( 16.f, 356.f, &m_noTileTexture, id++, this));
-	m_tileButtons.push_back(new TileButton( 72.f, 356.f, &m_noTileTexture, id++, this));
-	m_tileButtons.push_back(new TileButton(128.f, 356.f, &m_noTileTexture, id++, this));
-	m_tileButtons.push_back(new TileButton(184.f, 356.f, &m_noTileTexture, id++, this));
+	m_tileButtons.push_back(new TileButton( 14.f, 386.f, &m_noTileTexture, id++, this)); //4 abstand zwischen tiles
+	m_tileButtons.push_back(new TileButton( 68.f, 386.f, &m_noTileTexture, id++, this));
+	m_tileButtons.push_back(new TileButton(122.f, 386.f, &m_noTileTexture, id++, this));
+	m_tileButtons.push_back(new TileButton(176.f, 386.f, &m_noTileTexture, id++, this));
 
-	m_tileButtons.push_back(new TileButton( 16.f, 412.f, &m_noTileTexture, id++, this));
-	m_tileButtons.push_back(new TileButton( 72.f, 412.f, &m_noTileTexture, id++, this));
-	m_tileButtons.push_back(new TileButton(128.f, 412.f, &m_noTileTexture, id++, this));
-	m_tileButtons.push_back(new TileButton(184.f, 412.f, &m_noTileTexture, id++, this));
+	m_tileButtons.push_back(new TileButton( 14.f, 440.f, &m_noTileTexture, id++, this));
+	m_tileButtons.push_back(new TileButton( 68.f, 440.f, &m_noTileTexture, id++, this));
+	m_tileButtons.push_back(new TileButton(122.f, 440.f, &m_noTileTexture, id++, this));
+	m_tileButtons.push_back(new TileButton(176.f, 440.f, &m_noTileTexture, id++, this));
 
-	m_tileButtons.push_back(new TileButton( 16.f, 468.f, &m_noTileTexture, id++, this));
-	m_tileButtons.push_back(new TileButton( 72.f, 468.f, &m_noTileTexture, id++, this));
-	m_tileButtons.push_back(new TileButton(128.f, 468.f, &m_noTileTexture, id++, this));
-	m_tileButtons.push_back(new TileButton(184.f, 468.f, &m_noTileTexture, id++, this));
+	m_tileButtons.push_back(new TileButton( 14.f, 494.f, &m_noTileTexture, id++, this));
+	m_tileButtons.push_back(new TileButton( 68.f, 494.f, &m_noTileTexture, id++, this));
+	m_tileButtons.push_back(new TileButton(122.f, 494.f, &m_noTileTexture, id++, this));
+	m_tileButtons.push_back(new TileButton(176.f, 494.f, &m_noTileTexture, id++, this));
 
-	m_tileButtons.push_back(new TileButton( 16.f, 524.f, &m_noTileTexture, id++, this));
-	m_tileButtons.push_back(new TileButton( 72.f, 524.f, &m_noTileTexture, id++, this));
-	m_tileButtons.push_back(new TileButton(128.f, 524.f, &m_noTileTexture, id++, this));
-	m_tileButtons.push_back(new TileButton(184.f, 524.f, &m_noTileTexture, id++, this));
+	m_tileButtons.push_back(new TileButton( 14.f, 548.f, &m_noTileTexture, id++, this));
+	m_tileButtons.push_back(new TileButton( 68.f, 548.f, &m_noTileTexture, id++, this));
+	m_tileButtons.push_back(new TileButton(122.f, 548.f, &m_noTileTexture, id++, this));
+	m_tileButtons.push_back(new TileButton(176.f, 548.f, &m_noTileTexture, id++, this));
 
 	m_currentPlacingTile.setTexture(&m_noTileTexture);
 	m_currentPlacingTile.setSize(sf::Vector2f(50.f, 50.f));
-	m_currentPlacingTile.setPosition(23.f, 288.f);
+	m_currentPlacingTile.setPosition(41.f, 319.f);
 
 	if (!m_frameTexture.loadFromFile("resources/label_current_tile.png"))
 		std::cerr << "GUI ctor error loading frame texture!" << std::endl;
 	m_currentPlacingTileFrame.setTexture(m_frameTexture);
-	m_currentPlacingTileFrame.setPosition(20.f, 285.f);
+	m_currentPlacingTileFrame.setPosition(38.f, 316.f);
 
-	m_tileLayerButtons[0]->setInactive();
+	m_tileLayerButtons[0]->deactivate();
+	m_buttons[1]->deactivate();
+	m_buttons[2]->deactivate();
 }
 
 GUI::~GUI()
@@ -129,7 +142,7 @@ void GUI::handleMouseClick(float x, float y, int button)
 
 void GUI::resize(unsigned int width, unsigned int height)
 {
-	m_borderShapes[0].setSize(sf::Vector2f(10.f, height));
+	//m_borderShapes[0].setSize(sf::Vector2f(8.f, height));
 }
 
 void GUI::resetButtons()
@@ -159,14 +172,12 @@ void GUI::update(sf::Time elapsedTime)
 void GUI::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	states.transform *= getTransform();
-	target.draw(m_borderShapes[0], states);
-	target.draw(m_borderShapes[1], states);
-	target.draw(m_borderShapes[2], states);
+
+	for(int i = 0; i < 6; ++i)
+		target.draw(m_borderShapes[i], states);
 
 	for (auto button : m_buttons)
 		target.draw(*button, states);
-
-	target.draw(m_layerSprite, states);
 
 	if(m_mode == TILE)
 	{
@@ -179,9 +190,24 @@ void GUI::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
 		target.draw(m_currentPlacingTile, states);
 		target.draw(m_currentPlacingTileFrame, states);
+
+
+		for (auto button : m_collisionLayerButtons)
+			target.draw(*button, states);
 	}
 	else if(m_mode == COLLSION)
 	{
+		target.draw(m_tilesBackground, states);
+		for (auto button : m_tileLayerButtons)
+			target.draw(*button, states);
+
+		for (auto button : m_tileButtons)
+			target.draw(*button, states);
+
+		target.draw(m_currentPlacingTile, states);
+		target.draw(m_currentPlacingTileFrame, states);
+
+
 		for (auto button : m_collisionLayerButtons)
 			target.draw(*button, states);
 	}
@@ -212,13 +238,13 @@ void GUI::changeToMode(Mode mode)
 		m_mode = mode;
 		if (mode == TILE)
 		{
-			m_buttons[4]->setInactive();//TILES
-			m_buttons[5]->setActive();//COLLISION
+			m_buttons[4]->deactivate();//TILES
+			m_buttons[5]->activate();//COLLISION
 		}
 		else if (mode == COLLSION)
 		{
-			m_buttons[4]->setActive();//TILES
-			m_buttons[5]->setInactive();//COLLISION
+			m_buttons[4]->activate();//TILES
+			m_buttons[5]->deactivate();//COLLISION
 		}
 	}
 }
@@ -272,10 +298,10 @@ void GUI::nextPage()
 	++m_currentTilePage;
 	updateTileButtons();
 
-	m_tileLayerButtons[0]->setActive();
+	m_tileLayerButtons[0]->activate();
 
 	if ((m_currentTilePage + 1) == m_amountOfTilePages)
-		m_tileLayerButtons[1]->setInactive();
+		m_tileLayerButtons[1]->deactivate();
 }
 
 void GUI::previousPage()
@@ -285,11 +311,11 @@ void GUI::previousPage()
 	--m_currentTilePage;
 	updateTileButtons();
 
-	m_tileLayerButtons[1]->setActive();
+	m_tileLayerButtons[1]->activate();
 
 	for (auto button : m_tileButtons)
 		button->setTexture(&m_tileset);
 
 	if (m_currentTilePage == 0)
-		m_tileLayerButtons[0]->setInactive();
+		m_tileLayerButtons[0]->deactivate();
 }

@@ -18,8 +18,8 @@ public:
 	void handleMouseClick(float x, float y, int button);
 	void reset();
 	void update(sf::Time elapsedTime);
-	void setActive();
-	void setInactive();
+	void activate();
+	void deactivate();
 	bool isActive();
 
 private:

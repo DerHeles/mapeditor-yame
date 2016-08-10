@@ -15,7 +15,7 @@ public:
 		TILE, COLLSION
 	};
 
-	GUI(unsigned width, unsigned height, Application *application);
+	GUI(unsigned int width, unsigned int height, Application *application);
 	~GUI();
 	void handleMouseMove(float x, float y);
 	void handleMouseClick(float x, float y, int button);
@@ -34,15 +34,12 @@ private:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 	void updateTileButtons();
 
-	sf::RectangleShape m_borderShapes[3];
+	sf::RectangleShape m_borderShapes[6];
 
 	std::vector<Button*> m_buttons;
 	std::vector<Button*> m_tileLayerButtons;
 	std::vector<Button*> m_collisionLayerButtons;
 	std::vector<TileButton*> m_tileButtons;
-
-	sf::Sprite m_layerSprite;
-	sf::Texture m_layerTexture;
 
 	Mode m_mode;
 	sf::RectangleShape m_tilesBackground;
