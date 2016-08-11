@@ -8,9 +8,9 @@ class GUI;
 class Button : public sf::Transformable, public sf::Drawable
 {
 public:
-	enum ButtonAction
+	enum class ButtonAction
 	{
-		NEW, SAVE, LOAD, CONFIG, TILES, COLLISION, ARROW_LEFT, ARROW_RIGHT, EMPTY_TILE, DELETE, PLACE, NO_ACTION
+		NEW, SAVE, LOAD, CONFIG, TILE_VIEW, COLLISION_VIEW, ARROW_LEFT, ARROW_RIGHT, EMPTY_TILE, DELETE, PLACE, NO_ACTION
 	};
 
 	Button(float x, float y, ButtonAction action, GUI *gui);

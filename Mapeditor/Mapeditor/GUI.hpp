@@ -15,6 +15,11 @@ public:
 		TILE, COLLSION
 	};
 
+	enum class ButtonID
+	{
+		NEW, LOAD, CONFIG, SAVE, TILE_VIEW, COLLISION_VIEW, PLACE, DELETE, ARROW_LEFT, ARROW_RIGHT
+	};
+
 	GUI(unsigned int width, unsigned int height, Application *application);
 	~GUI();
 	void handleMouseMove(float x, float y);
@@ -29,6 +34,8 @@ public:
 	void nextPage();
 	void previousPage();
 
+	static int index(ButtonID id);
+
 private:
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
@@ -37,8 +44,6 @@ private:
 	sf::RectangleShape m_borderShapes[6];
 
 	std::vector<Button*> m_buttons;
-	std::vector<Button*> m_tileLayerButtons;
-	std::vector<Button*> m_collisionLayerButtons;
 	std::vector<TileButton*> m_tileButtons;
 
 	Mode m_mode;
@@ -49,11 +54,13 @@ private:
 
 	//Tilebuttons
 	sf::Texture m_noTileTexture;
+	sf::Texture m_deactivatedTileTexture;
 
 	Application *m_application;
 
 	sf::RectangleShape m_currentPlacingTile;
 	sf::Sprite m_currentPlacingTileFrame;
+	sf::Sprite m_deactivedPlacingTile;
 	sf::Texture m_frameTexture;
 
 	int m_currentTilePage;

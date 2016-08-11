@@ -1,16 +1,18 @@
 #include "TileButton.hpp"
 #include "GUI.hpp"
 
-TileButton::TileButton(float x, float y, sf::Texture *startTexture, int tileID, GUI *gui)
+TileButton::TileButton(float x, float y, sf::Texture *noTileTexture, sf::Texture *deactivatedTexture, int tileID, GUI *gui)
 	:
 	m_gui(gui),
-	m_currentTileID(tileID)
+	m_currentTileID(tileID),
+	m_showingTile(false)
 {
 	setPosition(x, y);
 	m_shape.setSize(sf::Vector2f(50.f, 50.f));
-	m_shape.setTexture(startTexture);
+	m_shape.setTexture(noTileTexture);
 
-	m_noTileTexture = startTexture;
+	m_noTileTexture = noTileTexture;
+	m_deactivatedTileTexture = deactivatedTexture;
 }
 
 void TileButton::handleMouseMove(float x, float y)
@@ -38,20 +40,52 @@ void TileButton::update(sf::Time elapsedTime)
 {
 }
 
-void TileButton::setTexture(sf::Texture* texture)
+void TileButton::activate()
 {
-	m_shape.setTexture(texture);
+	m_active = true;
+	if(m_showingTile)
+	{
+		m_shape.setTexture(m_tileset);
+		m_shape.setTextureRect(m_texRect);
+	}
+	else
+	{
+		m_shape.setTexture(m_noTileTexture, true);
+	}
 }
 
-void TileButton::setTextureRect(sf::IntRect rect)
+void TileButton::deactivate()
 {
-	m_shape.setTextureRect(rect);
+	m_active = false;
+	m_shape.setTexture(m_deactivatedTileTexture, true);
 }
 
-void TileButton::setTextureToNoTile()
+bool TileButton::isActive()
+{
+	return m_active;
+}
+
+void TileButton::setTileset(sf::Texture* texture)
+{
+	m_tileset = texture;
+}
+
+void TileButton::showTile()
+{
+	m_shape.setTexture(m_tileset);
+	m_shape.setTextureRect(m_texRect);
+	m_showingTile = true;
+}
+
+void TileButton::showNoTile()
 {
 	m_shape.setTexture(m_noTileTexture, true);
-	m_active = false;
+	m_showingTile = false;
+}
+
+void TileButton::setTileTextureRect(const sf::IntRect& rect)
+{
+	m_texRect = rect;
 }
 
 void TileButton::draw(sf::RenderTarget& target, sf::RenderStates states) const

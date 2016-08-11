@@ -8,4 +8,5 @@ namespace hlp
 	}*/
 
 	int gui_width = 248;
+	int gui_height = 620;
 }

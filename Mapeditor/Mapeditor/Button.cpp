@@ -15,51 +15,51 @@ Button::Button(float x, float y, ButtonAction action, GUI *gui)
 	std::string inactiveTexture = "resources/";
 	switch(action)
 	{
-	case NEW:
+	case ButtonAction::NEW:
 		activeTexture.append("new.png");
 		inactiveTexture.append("new_gray.png");
 		break;
-	case SAVE:
+	case ButtonAction::SAVE:
 		activeTexture.append("save.png");
 		inactiveTexture.append("save_gray.png");
 		break;
-	case LOAD:
+	case ButtonAction::LOAD:
 		activeTexture.append("load.png");
 		inactiveTexture.append("load_gray.png");
 		break;
-	case CONFIG:
+	case ButtonAction::CONFIG:
 		activeTexture.append("config.png");
 		inactiveTexture.append("config_gray.png");
 		break;
-	case TILES:
+	case ButtonAction::TILE_VIEW:
 		activeTexture.append("tile_view.png");
 		inactiveTexture.append("tile_view_gray.png");
 		break;
-	case COLLISION:
+	case ButtonAction::COLLISION_VIEW:
 		activeTexture.append("collision_view.png");
 		inactiveTexture.append("collision_view_gray.png");
 		break;
-	case ARROW_LEFT:
+	case ButtonAction::ARROW_LEFT:
 		activeTexture.append("arrow_left.png");
 		inactiveTexture.append("arrow_left_gray.png");
 		break;
-	case ARROW_RIGHT:
+	case ButtonAction::ARROW_RIGHT:
 		activeTexture.append("arrow_right.png");
 		inactiveTexture.append("arrow_right_gray.png");
 		break;
-	case EMPTY_TILE:
+	case ButtonAction::EMPTY_TILE:
 		activeTexture.append("empty_tile.png");
 		inactiveTexture.append("empty_tile_gray.png");
 		break;
-	case DELETE:
+	case ButtonAction::DELETE:
 		activeTexture.append("delete.png");
 		inactiveTexture.append("delete_gray.png");
 		break;
-	case PLACE:
+	case ButtonAction::PLACE:
 		activeTexture.append("place.png");
 		inactiveTexture.append("place_gray.png");
 		break;
-	case NO_ACTION:
+	case ButtonAction::NO_ACTION:
 		return;
 		break;
 	default: break;
@@ -101,44 +101,44 @@ void Button::handleMouseClick(float x, float y, int button)
 			m_sprite.setColor(sf::Color(255, 245, 201));
 			switch (m_action)
 			{
-			case NEW:
+			case ButtonAction::NEW:
 				std::cout << "NEW" << std::endl;
 				break;
-			case LOAD:
+			case ButtonAction::LOAD:
 				std::cout << "LOAD" << std::endl;
 				break;
-			case SAVE:
+			case ButtonAction::SAVE:
 				std::cout << "SAVE" << std::endl;
 				break;
-			case CONFIG:
+			case ButtonAction::CONFIG:
 				std::cout << "CONFIG" << std::endl;
 				break;
-			case TILES:
-				std::cout << "TILES" << std::endl;
+			case ButtonAction::TILE_VIEW:
+				std::cout << "TILE_VIEW" << std::endl;
 				m_gui->changeToMode(GUI::Mode::TILE);
 				break;
-			case COLLISION:
-				std::cout << "COLLISION" << std::endl;
+			case ButtonAction::COLLISION_VIEW:
+				std::cout << "COLLISION_VIEW" << std::endl;
 				m_gui->changeToMode(GUI::Mode::COLLSION);
 				break;
-			case ARROW_LEFT:
+			case ButtonAction::ARROW_LEFT:
 				std::cout << "ARROW_LEFT" << std::endl;
 				m_gui->previousPage();
 				break;
-			case ARROW_RIGHT:
+			case ButtonAction::ARROW_RIGHT:
 				std::cout << "ARROW_RIGHT" << std::endl;
 				m_gui->nextPage();
 				break;
-			case EMPTY_TILE:
+			case ButtonAction::EMPTY_TILE:
 				std::cout << "EMPTY_TILE" << std::endl;
 				break;
-			case DELETE:
+			case ButtonAction::DELETE:
 				std::cout << "DELETE" << std::endl;
 				break;
-			case PLACE:
+			case ButtonAction::PLACE:
 				std::cout << "PLACE" << std::endl;
 				break;
-			case NO_ACTION:
+			case ButtonAction::NO_ACTION:
 				std::cout << "NO_ACTION" << std::endl;
 				break;
 			default:

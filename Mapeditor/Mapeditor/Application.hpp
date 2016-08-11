@@ -13,6 +13,7 @@ public:
 	void run();
 
 	void changeCurrentPlacingTileValue(int tilePlaceValue);
+	void changeToMode(GUI::Mode mode);
 
 private:
 	void update(sf::Time elapsedTime);
@@ -48,6 +49,8 @@ private:
 	sf::Vector2f m_dragStart;
 	sf::Vector2f m_dragEnd;
 	bool m_dragging; //um sicherzustellen, dass vor dem Auslösen von released auch innerhalb des fenster gepressed worden ist
+
+	GUI::Mode m_mode;
 };
 
 #endif

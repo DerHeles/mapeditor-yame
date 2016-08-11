@@ -5,11 +5,12 @@
 
 Application::Application(unsigned width, unsigned height)
 	:
-	m_window(sf::VideoMode(width, height), "YAME - Yet Another Map Editor (c) Tobias Heiles", sf::Style::Default),
+	m_window(sf::VideoMode(width, height), "YAME - Mode: TILE", sf::Style::Default),
 	m_gui(width, height, this),
 	m_dragging(false),
 	m_currentTilePlacingValue(-1),
-	m_showSelectedTile(false)
+	m_showSelectedTile(false),
+	m_mode(GUI::Mode::TILE)
 {
 	m_window.setFramerateLimit(60);
 
@@ -35,8 +36,8 @@ Application::Application(unsigned width, unsigned height)
 		0, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 7,
 	};
 	m_map.load("tileset.png", sf::Vector2u(50, 50), level, 21, 16);
-	m_view.setSize(m_window.getSize().x - 250.f, m_window.getSize().y);
-	m_view.setViewport(sf::FloatRect(1.f - (static_cast<float>(width) - 250.f) / static_cast<float>(width), 0.f, (static_cast<float>(width) - 250.f) / static_cast<float>(width), 1.f));
+	m_view.setSize(m_window.getSize().x - hlp::gui_width, m_window.getSize().y);
+	m_view.setViewport(sf::FloatRect(1.f - (static_cast<float>(width) - hlp::gui_width) / static_cast<float>(width), 0.f, (static_cast<float>(width) - hlp::gui_width) / static_cast<float>(width), 1.f));
 
 	//GUI
 	m_guiView = m_window.getView();
@@ -71,6 +72,22 @@ void Application::run()
 void Application::changeCurrentPlacingTileValue(int tilePlaceValue)
 {
 	m_currentTilePlacingValue = tilePlaceValue;
+}
+
+void Application::changeToMode(GUI::Mode mode)
+{
+	if(m_mode != mode)
+	{
+		m_mode = mode;
+		if(mode == GUI::Mode::TILE)
+		{
+			m_window.setTitle("YAME - Mode: TILE");
+		}
+		else if(mode == GUI::Mode::COLLSION)
+		{
+			m_window.setTitle("YAME - Mode: COLLISION");
+		}
+	}
 }
 
 void Application::update(sf::Time elapsedTime)
@@ -117,8 +134,8 @@ void Application::processEvents()
 				m_guiView.setSize(m_window.getSize().x, m_window.getSize().y);
 				m_gui.setPosition(m_window.mapPixelToCoords(sf::Vector2i(0,0), m_guiView));
 
-				m_view.setViewport(sf::FloatRect(1.f - (static_cast<float>(m_window.getSize().x) - 250.f) / static_cast<float>(m_window.getSize().x), 0.f, (static_cast<float>(m_window.getSize().x) - 250.f) / static_cast<float>(m_window.getSize().x), 1.f));
-				m_view.setSize(m_window.getSize().x - 250.f, m_window.getSize().y);
+				m_view.setViewport(sf::FloatRect(1.f - (static_cast<float>(m_window.getSize().x) - hlp::gui_width) / static_cast<float>(m_window.getSize().x), 0.f, (static_cast<float>(m_window.getSize().x) - hlp::gui_width) / static_cast<float>(m_window.getSize().x), 1.f));
+				m_view.setSize(m_window.getSize().x - hlp::gui_width, m_window.getSize().y);
 
 				m_gui.resize(event.size.width, event.size.height);
 
@@ -335,7 +352,10 @@ void Application::handleMouseButtonRelease(const sf::Event& event)
 			if(m_currentTilePlacingValue >= 0)//nur falls auch TileWert ausgewählt wurde
 			{
 				if(m_dragStart == m_dragEnd)
-					m_map.changeTileFromMousePosition(position.x, position.y, m_currentTilePlacingValue);
+				{
+					if(m_mode == GUI::Mode::TILE)
+						m_map.changeTileFromMousePosition(position.x, position.y, m_currentTilePlacingValue);
+				}
 				else
 				{
 					sf::FloatRect rect;
@@ -344,7 +364,8 @@ void Application::handleMouseButtonRelease(const sf::Event& event)
 					rect.width = std::abs(m_dragStart.x - m_dragEnd.x);
 					rect.height = std::abs(m_dragStart.y - m_dragEnd.y);
 
-					m_map.changeTilesFromRectangle(rect, m_currentTilePlacingValue);
+					if (m_mode == GUI::Mode::TILE)
+						m_map.changeTilesFromRectangle(rect, m_currentTilePlacingValue);
 				}
 			}
 			int realX, realY;
@@ -394,7 +415,8 @@ void Application::handleMouseButtonRelease(const sf::Event& event)
 					{
 						rect.height = (m_mapSize.y * m_tileSize.y) - rect.top - 1;
 					}
-					m_map.changeTilesFromRectangle(rect, m_currentTilePlacingValue);
+					if (m_mode == GUI::Mode::TILE)
+						m_map.changeTilesFromRectangle(rect, m_currentTilePlacingValue);
 				}
 			}
 		}
