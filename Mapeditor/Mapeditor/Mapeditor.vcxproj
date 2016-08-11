@@ -133,7 +133,7 @@
     <ClCompile Include="Helper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TileButton.cpp" />
-    <ClCompile Include="TileMap.cpp" />
+    <ClCompile Include="EditorTileMap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.hpp" />
@@ -142,7 +142,7 @@
     <ClInclude Include="GUI.hpp" />
     <ClInclude Include="Helper.hpp" />
     <ClInclude Include="TileButton.hpp" />
-    <ClInclude Include="TileMap.hpp" />
+    <ClInclude Include="EditorTileMap.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -2,7 +2,7 @@
 #define APPLICATION_HPP
 
 #include <SFML/Graphics.hpp>
-#include "TileMap.hpp"
+#include "EditorTileMap.hpp"
 #include "GUI.hpp"
 
 class Application
@@ -14,11 +14,17 @@ public:
 
 	void changeCurrentPlacingTileValue(int tilePlaceValue);
 	void changeToMode(GUI::Mode mode);
+	void createMap(); //evtl bool
+	void loadMap();
+	void configMap();
+	void saveMap();
 
 private:
 	void update(sf::Time elapsedTime);
 	void processEvents();
 	void render();
+
+	void setIcon();
 
 	void handleMouseMove(const sf::Event& event);
 	void handleMouseButtonPress(const sf::Event& event);
@@ -33,7 +39,7 @@ private:
 	void extractTilesFromTileset(const std::string& tileset, sf::Vector2u tileSize);
 
 	sf::RenderWindow m_window;
-	TileMap m_map;
+	EditorTileMap m_map;
 	sf::View m_view;
 
 	int m_currentTilePlacingValue;

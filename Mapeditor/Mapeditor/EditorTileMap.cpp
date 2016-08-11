@@ -1,24 +1,24 @@
-#include "TileMap.hpp"
+#include "EditorTileMap.hpp"
 #include <iostream>
 
-TileMap::TileMap()
+EditorTileMap::EditorTileMap()
 	:
 	m_tiles(nullptr)
 {
 }
 
-TileMap::~TileMap()
+EditorTileMap::~EditorTileMap()
 {
 	delete[] m_tiles;
 }
 
-void TileMap::changeTile(unsigned x, unsigned y, int value)
+void EditorTileMap::changeTile(unsigned int x, unsigned int y, int value)
 {
 	m_tiles[x + y * m_mapSize.x] = value;
 	updateVertices(x, y);
 }
 
-bool TileMap::load(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height)
+bool EditorTileMap::load(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height)
 {
 	// load the tileset texture
 	if (!m_tileset.loadFromFile(tileset))
@@ -66,7 +66,7 @@ bool TileMap::load(const std::string& tileset, sf::Vector2u tileSize, const int*
 	return true;
 }
 
-void TileMap::loadFromFile(std::ifstream* file)
+void EditorTileMap::loadFromFile(std::ifstream* file)
 {
 	m_texturePath = readString(file);
 	std::cout << m_texturePath << std::endl;
@@ -82,7 +82,7 @@ void TileMap::loadFromFile(std::ifstream* file)
 	delete[] tiles;
 }
 
-void TileMap::saveToFile(std::ofstream* file) const
+void EditorTileMap::saveToFile(std::ofstream* file) const
 {
 	writeString(file, m_texturePath);
 	file->write(reinterpret_cast<const char*>(&m_tileSize.x), sizeof(m_tileSize.x));
@@ -94,10 +94,25 @@ void TileMap::saveToFile(std::ofstream* file) const
 	file->write(reinterpret_cast<const char*>(m_tiles), sizeof(int) * m_mapSize.x * m_mapSize.y);
 }
 
-void TileMap::writeString(std::ofstream* file, const std::string& str) const
+const sf::Vector2u& EditorTileMap::getTileSize() const
+{
+	return m_tileSize;
+}
+
+const sf::Vector2u& EditorTileMap::getMapSize() const
+{
+	return m_mapSize;
+}
+
+const std::string& EditorTileMap::getTexturePath() const
+{
+	return m_texturePath;
+}
+
+void EditorTileMap::writeString(std::ofstream* file, const std::string& str) const
 {
 	// get the length of the string data
-	unsigned len = str.size();
+	unsigned int len = str.size();
 
 	// write the size:
 	file->write(reinterpret_cast<const char*>(&len), sizeof(len));
@@ -106,13 +121,13 @@ void TileMap::writeString(std::ofstream* file, const std::string& str) const
 	file->write(str.c_str(), len);
 }
 
-std::string TileMap::readString(std::ifstream* file)
+std::string EditorTileMap::readString(std::ifstream* file)
 {
 	// this probably isn't the optimal way to do it, but whatever
 	std::string str;
 
 	// get the length
-	unsigned len;
+	unsigned int len;
 	file->read(reinterpret_cast<char*>(&len), sizeof(len));
 
 	// we can't read to string directly, so instead, create a temporary buffer
@@ -126,7 +141,7 @@ std::string TileMap::readString(std::ifstream* file)
 	return str;
 }
 
-void TileMap::changeTileFromMousePosition(float x, float y, int value)
+void EditorTileMap::changeTileFromMousePosition(float x, float y, int value)
 {
 	int realX, realY;
 	realX = x / m_tileSize.x;
@@ -137,7 +152,7 @@ void TileMap::changeTileFromMousePosition(float x, float y, int value)
 
 }
 
-void TileMap::changeTilesFromRectangle(sf::FloatRect rect, int value)
+void EditorTileMap::changeTilesFromRectangle(sf::FloatRect rect, int value)
 {
 	int realX, realY, realX2, realY2;
 
@@ -157,7 +172,7 @@ void TileMap::changeTilesFromRectangle(sf::FloatRect rect, int value)
 			changeTile(i, j, value);
 }
 
-void TileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void EditorTileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	// apply the transform
 	states.transform *= getTransform();
@@ -169,7 +184,7 @@ void TileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const
 	target.draw(m_vertices, states);
 }
 
-void TileMap::updateVertices(unsigned int x, unsigned int y)
+void EditorTileMap::updateVertices(unsigned int x, unsigned int y)
 {
 	// get the current tile number
 	int tileNumber = m_tiles[x + y * m_mapSize.x];

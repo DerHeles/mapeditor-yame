@@ -36,19 +36,19 @@ GUI::GUI(unsigned int width, unsigned int height, Application *application)
 
 
 	//wegen ursprünglichem sf::text als button*
-	m_buttons.push_back(new Button(8.f, 16.f, Button::ButtonAction::NEW, this));
-	m_buttons.push_back(new Button(124.f, 16.f, Button::ButtonAction::LOAD, this));
-	m_buttons.push_back(new Button(8.f, 79.f, Button::ButtonAction::CONFIG, this));
-	m_buttons.push_back(new Button(124.f, 79.f, Button::ButtonAction::SAVE, this));
-	m_buttons.push_back(new Button(8.f, 158.f, Button::ButtonAction::TILE_VIEW, this));
-	m_buttons.push_back(new Button(124.f, 158.f, Button::ButtonAction::COLLISION_VIEW, this));
+	m_buttons.push_back(new Button(8.f, 16.f, Button::ButtonAction::NEW, this, application));
+	m_buttons.push_back(new Button(124.f, 16.f, Button::ButtonAction::LOAD, this, application));
+	m_buttons.push_back(new Button(8.f, 79.f, Button::ButtonAction::CONFIG, this, application));
+	m_buttons.push_back(new Button(124.f, 79.f, Button::ButtonAction::SAVE, this, application));
+	m_buttons.push_back(new Button(8.f, 158.f, Button::ButtonAction::TILE_VIEW, this, application));
+	m_buttons.push_back(new Button(124.f, 158.f, Button::ButtonAction::COLLISION_VIEW, this, application));
 
 
-	m_buttons.push_back(new Button(8.f, 237.f, Button::ButtonAction::PLACE, this));
-	m_buttons.push_back(new Button(124.f, 237.f, Button::ButtonAction::DELETE, this));
+	m_buttons.push_back(new Button(8.f, 237.f, Button::ButtonAction::PLACE, this, application));
+	m_buttons.push_back(new Button(124.f, 237.f, Button::ButtonAction::DELETE, this, application));
 
-	m_buttons.push_back(new Button(116.f, 326.f, Button::ButtonAction::ARROW_LEFT, this));
-	m_buttons.push_back(new Button(178.f, 326.f, Button::ButtonAction::ARROW_RIGHT, this));
+	m_buttons.push_back(new Button(116.f, 326.f, Button::ButtonAction::ARROW_LEFT, this, application));
+	m_buttons.push_back(new Button(178.f, 326.f, Button::ButtonAction::ARROW_RIGHT, this, application));
 
 
 	m_tilesBackground.setPosition(8.f, 380.f);
@@ -98,6 +98,7 @@ GUI::GUI(unsigned int width, unsigned int height, Application *application)
 
 	//deactivate buttons
 	m_buttons[index(ButtonID::ARROW_LEFT)]->deactivate();
+	m_buttons[index(ButtonID::ARROW_RIGHT)]->deactivate();
 	m_buttons[index(ButtonID::SAVE)]->deactivate();
 	m_buttons[index(ButtonID::CONFIG)]->deactivate();
 	m_buttons[index(ButtonID::TILE_VIEW)]->deactivate();
@@ -192,8 +193,6 @@ void GUI::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
 		target.draw(m_deactivedPlacingTile, states);
 		target.draw(m_currentPlacingTileFrame, states);
-
-
 	}
 }
 
@@ -286,6 +285,12 @@ void GUI::loadTiles(const std::string& tileset, float tile_width, float tile_hei
 	if (f1 != 0)
 		m_amountOfTilePages++;
 
+	std::cout << "tile pages = " << m_amountOfTilePages << std::endl;
+	if(m_amountOfTilePages > 1)
+		m_buttons[index(ButtonID::ARROW_RIGHT)]->activate();
+	else
+		m_buttons[index(ButtonID::ARROW_RIGHT)]->deactivate();
+
 	for (int i = 0; i < 16; ++i)
 		m_tileButtons[i]->setTileset(&m_tileset);
 
@@ -319,6 +324,16 @@ void GUI::previousPage()
 
 	if (m_currentTilePage == 0)
 		m_buttons[index(ButtonID::ARROW_LEFT)]->deactivate();
+}
+
+void GUI::mapLoaded()
+{
+	m_buttons[index(ButtonID::SAVE)]->activate();
+	m_buttons[index(ButtonID::CONFIG)]->activate();
+}
+
+void GUI::mapSaved()
+{
 }
 
 int GUI::index(ButtonID id)

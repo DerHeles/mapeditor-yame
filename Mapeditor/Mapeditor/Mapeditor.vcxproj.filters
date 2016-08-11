@@ -18,9 +18,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="TileMap.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
     <ClCompile Include="Application.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
@@ -39,11 +36,11 @@
     <ClCompile Include="TileButton.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="EditorTileMap.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TileMap.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Application.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -60,6 +57,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TileButton.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EditorTileMap.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

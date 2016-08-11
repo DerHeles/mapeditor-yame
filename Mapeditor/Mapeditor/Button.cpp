@@ -1,14 +1,16 @@
 #include "Button.hpp"
 #include <iostream>
 #include "GUI.hpp"
+#include "Application.hpp"
 
-Button::Button(float x, float y, ButtonAction action, GUI *gui)
+Button::Button(float x, float y, ButtonAction action, GUI *gui, Application *app)
 	:
 	m_action(action),
 	m_active(true),
 	m_clicked(false),
 	m_mouseOver(false),
-	m_gui(gui)
+	m_gui(gui),
+	m_app(app)
 {
 	setPosition(x, y);
 	std::string activeTexture = "resources/";
@@ -103,15 +105,19 @@ void Button::handleMouseClick(float x, float y, int button)
 			{
 			case ButtonAction::NEW:
 				std::cout << "NEW" << std::endl;
+				m_app->createMap();
 				break;
 			case ButtonAction::LOAD:
 				std::cout << "LOAD" << std::endl;
+				m_app->loadMap();
 				break;
 			case ButtonAction::SAVE:
 				std::cout << "SAVE" << std::endl;
+				m_app->saveMap();
 				break;
 			case ButtonAction::CONFIG:
 				std::cout << "CONFIG" << std::endl;
+				m_app->configMap();
 				break;
 			case ButtonAction::TILE_VIEW:
 				std::cout << "TILE_VIEW" << std::endl;

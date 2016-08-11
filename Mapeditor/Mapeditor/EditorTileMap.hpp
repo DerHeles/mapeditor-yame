@@ -5,11 +5,11 @@
 #include <string>
 #include <fstream>
 
-class TileMap : public sf::Drawable, public sf::Transformable
+class EditorTileMap : public sf::Drawable, public sf::Transformable
 {
 public:
-	TileMap();
-	~TileMap();
+	EditorTileMap();
+	~EditorTileMap();
 	void changeTile(unsigned int x, unsigned int y, int value);
 	bool load(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height);
 	void changeTileFromMousePosition(float x, float y, int value);
@@ -17,6 +17,9 @@ public:
 
 	void loadFromFile(std::ifstream *file);
 	void saveToFile(std::ofstream *file) const;
+	const sf::Vector2u& getTileSize() const;
+	const sf::Vector2u& getMapSize() const;
+	const std::string& getTexturePath() const;
 
 private:
 	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;

@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 
 class GUI;
+class Application;
 
 class Button : public sf::Transformable, public sf::Drawable
 {
@@ -13,7 +14,7 @@ public:
 		NEW, SAVE, LOAD, CONFIG, TILE_VIEW, COLLISION_VIEW, ARROW_LEFT, ARROW_RIGHT, EMPTY_TILE, DELETE, PLACE, NO_ACTION
 	};
 
-	Button(float x, float y, ButtonAction action, GUI *gui);
+	Button(float x, float y, ButtonAction action, GUI *gui, Application *app);
 	void handleMouseMove(float x, float y);
 	void handleMouseClick(float x, float y, int button);
 	void reset();
@@ -36,6 +37,7 @@ private:
 	bool m_active;
 
 	GUI *m_gui;
+	Application *m_app;
 };
 
 #endif

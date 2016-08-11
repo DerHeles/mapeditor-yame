@@ -34,9 +34,11 @@ public:
 	void nextPage();
 	void previousPage();
 
-	static int index(ButtonID id);
+	void mapLoaded();
+	void mapSaved();
 
 private:
+	static int index(ButtonID id);
 
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 	void updateTileButtons();
