@@ -29,7 +29,9 @@ public:
 	void update(sf::Time elapsedTime);
 	void changeToMode(Mode mode);
 	void changeCurrentPlacingTile(int tilePlaceValue, sf::IntRect textureRect);
-	void loadTiles(const std::string& tileset, float tile_width, float tile_height);
+	void loadTiles(const std::string& tileset, float tile_width, float tile_height, int tile_gap);
+
+	void changeCollisionPlacing(bool collision);
 
 	void nextPage();
 	void previousPage();
@@ -53,6 +55,7 @@ private:
 
 	sf::Texture m_tileset;
 	sf::Vector2u m_tileSize; //tiles werden immer als 50x50 im GUI angezeigt, haben aber variable größe in der map
+	int m_tileGap;
 
 	//Tilebuttons
 	sf::Texture m_noTileTexture;

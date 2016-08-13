@@ -206,8 +206,8 @@ void GUI::updateTileButtons()
 			m_tileButtons[i]->showNoTile();
 		else
 		{
-			int x = ((i + 16 * m_currentTilePage) % (m_tileset.getSize().x / m_tileSize.x)) * m_tileSize.x;
-			int y = ((i + 16 * m_currentTilePage) / (m_tileset.getSize().x / m_tileSize.x)) * m_tileSize.x;
+			int x = ((i + 16 * m_currentTilePage) % (m_tileset.getSize().x / m_tileSize.x)) * (m_tileSize.x + m_tileGap);
+			int y = ((i + 16 * m_currentTilePage) / (m_tileset.getSize().x / m_tileSize.x)) * (m_tileSize.y + m_tileGap);
 
 			m_tileButtons[i]->setTileTextureRect(sf::IntRect(x, y, m_tileSize.x, m_tileSize.y));
 			m_tileButtons[i]->showTile();
@@ -235,13 +235,14 @@ void GUI::changeToMode(Mode mode)
 
 			for (auto b : m_tileButtons)
 				b->activate();
+
 		}
 		else if (mode == COLLSION)
 		{
 			m_buttons[index(ButtonID::TILE_VIEW)]->activate();
 			m_buttons[index(ButtonID::COLLISION_VIEW)]->deactivate();
 			m_buttons[index(ButtonID::PLACE)]->activate();
-			m_buttons[index(ButtonID::DELETE)]->activate();
+			m_buttons[index(ButtonID::DELETE)]->deactivate();
 			m_buttons[index(ButtonID::ARROW_LEFT)]->deactivate();
 			m_buttons[index(ButtonID::ARROW_RIGHT)]->deactivate();
 
@@ -249,6 +250,8 @@ void GUI::changeToMode(Mode mode)
 
 			for (auto b : m_tileButtons)
 				b->deactivate();
+
+			m_application->changeCurrentCollisionTileValue(true);
 		}
 	}
 }
@@ -263,10 +266,11 @@ void GUI::changeCurrentPlacingTile(int tilePlaceValue, sf::IntRect textureRect)
 	}
 }
 
-void GUI::loadTiles(const std::string& tileset, float tile_width, float tile_height)
+void GUI::loadTiles(const std::string& tileset, float tile_width, float tile_height, int tile_gap)
 {
 	m_tileSize.x = tile_width;
 	m_tileSize.y = tile_height;
+	m_tileGap = tile_gap;
 
 	m_currentTilePage = 0;
 
@@ -295,6 +299,21 @@ void GUI::loadTiles(const std::string& tileset, float tile_width, float tile_hei
 		m_tileButtons[i]->setTileset(&m_tileset);
 
 	updateTileButtons();
+}
+
+void GUI::changeCollisionPlacing(bool collision)
+{
+	m_application->changeCurrentCollisionTileValue(collision);
+	if(collision)
+	{
+		m_buttons[index(ButtonID::PLACE)]->deactivate();
+		m_buttons[index(ButtonID::DELETE)]->activate();
+	}
+	else
+	{
+		m_buttons[index(ButtonID::PLACE)]->activate();
+		m_buttons[index(ButtonID::DELETE)]->deactivate();
+	}
 }
 
 void GUI::nextPage()

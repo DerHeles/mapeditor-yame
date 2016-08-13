@@ -2,6 +2,7 @@
 #include "Configuration.hpp"
 #include <iostream>
 #include "Helper.hpp"
+#include <fstream>
 
 Application::Application(unsigned width, unsigned height)
 	:
@@ -10,7 +11,8 @@ Application::Application(unsigned width, unsigned height)
 	m_dragging(false),
 	m_currentTilePlacingValue(-1),
 	m_showSelectedTile(false),
-	m_mode(GUI::Mode::TILE)
+	m_mode(GUI::Mode::TILE),
+	m_collisionLayerPlaceCollisions(true)
 {
 	m_window.setFramerateLimit(60);
 
@@ -20,14 +22,7 @@ Application::Application(unsigned width, unsigned height)
 	//GUI
 	m_guiView = m_window.getView();
 
-	/*m_selectedTilesShape.setSize(sf::Vector2f(50, 50));
 	m_selectedTilesShape.setFillColor(sf::Color(255, 100, 100, 180));
-
-	m_tileSize.x = 50;
-	m_tileSize.y = 50;
-
-	m_mapSize.x = 21;
-	m_mapSize.y = 16;*/
 
 	setIcon();
 }
@@ -61,23 +56,30 @@ void Application::changeToMode(GUI::Mode mode)
 		if(mode == GUI::Mode::TILE)
 		{
 			m_window.setTitle("YAME - Mode: TILE");
+			m_map.hideCollisionLayer();
 		}
 		else if(mode == GUI::Mode::COLLSION)
 		{
 			m_window.setTitle("YAME - Mode: COLLISION");
+			m_map.showCollisionLayer();
 		}
 	}
 }
 
+void Application::changeCurrentCollisionTileValue(bool collision)
+{
+	m_collisionLayerPlaceCollisions = collision;
+}
+
 void Application::createMap()
 {
-	//:load(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height)
 	std::string tileset;
 	int *tiles;
-	unsigned int width;
-	unsigned int height;
-	unsigned int tile_width;
-	unsigned int tile_height;
+	int width;
+	int height;
+	int tile_width;
+	int tile_height;
+	int tile_gap;
 
 	std::cout << "~~~Create Map~~~\ntileset name: " << std::flush;
 	std::cin >> tileset;
@@ -89,16 +91,16 @@ void Application::createMap()
 	std::cin >> tile_width;
 	std::cout << "tile height: " << std::flush;
 	std::cin >> tile_height;
+	std::cout << "tile gap: " << std::flush;
+	std::cin >> tile_gap;
 
 	//auf valide werte prüfen! OB INT UNSW
 	tiles = new int[width * height];
 	for (int i = 0; i < width * height; ++i)
 		tiles[i] = 0;
-	if(m_map.load(tileset, sf::Vector2u(tile_width, tile_height), tiles, width, height))
+	if(m_map.load("tilesets/" + tileset, sf::Vector2u(tile_width, tile_height), tiles, width, height, tile_gap))
 	{
 		std::cout << "Map created!" << std::endl;
-		m_gui.loadTiles(tileset, tile_width, tile_height);
-
 
 		m_selectedTilesShape.setSize(sf::Vector2f(tile_width, tile_height));
 
@@ -109,6 +111,7 @@ void Application::createMap()
 		m_mapSize.y = height;
 
 		m_gui.mapLoaded();
+		m_gui.loadTiles("tilesets/" + tileset, tile_width, tile_height, tile_gap);
 	}
 	else
 	{
@@ -119,35 +122,82 @@ void Application::createMap()
 void Application::loadMap()
 {
 	std::string mapname;
-	std::cout << "~~~Load Map~~~\nmap name (.ymap!): " << std::flush;
+	std::cout << "~~~Load Map~~~\nmap name (without .ymap!): " << std::flush;
 	std::cin >> mapname;
-	std::ifstream mapfile(mapname, std::ios::binary);
+	mapname.append(".ymap");
+
+	std::ifstream mapfile(std::string("maps/") + mapname, std::ios::binary);
 
 	if (mapfile.is_open())
 	{
 		m_map.loadFromFile(&mapfile);
-		std::cout << "map loaded from \"" << mapname << "\"" << std::endl;
+		std::cout << "map loaded from \"" << "maps/" << mapname << "\"" << std::endl;
 
+		m_tileSize.x = m_map.getTileSize().x;
+		m_tileSize.y = m_map.getTileSize().y;
+
+		m_mapSize.x = m_map.getMapSize().x;
+		m_mapSize.y = m_map.getMapSize().y;
+
+		m_selectedTilesShape.setSize(sf::Vector2f(m_tileSize.x, m_tileSize.y));
+
+		m_gui.loadTiles(m_map.getTexturePath(), m_tileSize.x, m_tileSize.y, m_map.getTileGap());
 		m_gui.mapLoaded();
 	}
 	else
 	{
-		std::cerr << "error loading map from \"" << mapname << "\"" << std::endl;
+		std::cerr << "error loading map from \"" << "maps/" << mapname << "\"" << std::endl;
 	}
 }
 
 void Application::configMap()
 {
+	std::string tileset;
+	int tile_width;
+	int tile_height;
+	int tile_gap;
+
+	std::string currentTileset = m_map.getTexturePath();
+	currentTileset.erase(0, 9); //remove "tilesets/"
+
+	std::cout << "~~~Config existing Map~~~\ntileset name (currently = " << currentTileset << " ): "<< std::flush;
+	std::cin >> tileset;
+	std::cout << "tile width (currently = " << m_tileSize.x << " ): " << std::flush;
+	std::cin >> tile_width;
+	std::cout << "tile height (currently = " << m_tileSize.y << " ): " << std::flush;
+	std::cin >> tile_height;
+	std::cout << "tile gap (currently = " << m_map.getTileGap() << " ): " << std::flush;
+	std::cin >> tile_gap;
+
+	//auf valide werte prüfen! OB INT UNSW
+
+	if (m_map.reload("tilesets/" + tileset, sf::Vector2u(tile_width, tile_height),  tile_gap))
+	{
+		std::cout << "Map configured!" << std::endl;
+
+		m_selectedTilesShape.setSize(sf::Vector2f(tile_width, tile_height));
+
+		m_tileSize.x = tile_width;
+		m_tileSize.y = tile_height;
+
+		m_gui.mapLoaded();
+		m_gui.loadTiles("tilesets/" + tileset, tile_width, tile_height, tile_gap);
+	}
+	else
+	{
+		std::cout << "Map config failed!" << std::endl;
+	}
 }
 
 void Application::saveMap()
 {
 
 	std::string mapname;
-	std::cout << "~~~Load Map~~~\nmap name (.ymap!): " << std::flush;
+	std::cout << "~~~Load Map~~~\nmap name (without .ymap!): " << std::flush;
 	std::cin >> mapname;
+	mapname.append(".ymap");
 
-	std::ofstream mapfile(mapname, std::ios::binary);
+	std::ofstream mapfile(std::string("maps/") + mapname, std::ios::binary);
 
 	if(mapfile.is_open())
 	{
@@ -585,7 +635,6 @@ void Application::handleMouseButtonPress(const sf::Event& event)
 		if (!aboveValidMapArea(position.x, position.y))
 			return;
 
-		std::cout << "PRESS" << std::endl;
 		m_dragStart.x = position.x;
 		m_dragStart.y= position.y;
 
@@ -616,8 +665,10 @@ void Application::handleMouseButtonRelease(const sf::Event& event)
 			{
 				if(m_dragStart == m_dragEnd)
 				{
-					if(m_mode == GUI::Mode::TILE)
+					if (m_mode == GUI::Mode::TILE)
 						m_map.changeTileFromMousePosition(position.x, position.y, m_currentTilePlacingValue);
+					else if (m_mode == GUI::Mode::COLLSION)
+						m_map.changeCollisionTileFromMousePosition(position.x, position.y, m_collisionLayerPlaceCollisions);
 				}
 				else
 				{
@@ -629,6 +680,8 @@ void Application::handleMouseButtonRelease(const sf::Event& event)
 
 					if (m_mode == GUI::Mode::TILE)
 						m_map.changeTilesFromRectangle(rect, m_currentTilePlacingValue);
+					else if (m_mode == GUI::Mode::COLLSION)
+						m_map.changeCollisionTilesFromRectangle(rect, m_collisionLayerPlaceCollisions);
 				}
 			}
 			int realX, realY;

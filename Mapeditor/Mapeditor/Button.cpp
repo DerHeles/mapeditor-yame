@@ -140,9 +140,11 @@ void Button::handleMouseClick(float x, float y, int button)
 				break;
 			case ButtonAction::DELETE:
 				std::cout << "DELETE" << std::endl;
+				m_gui->changeCollisionPlacing(false);
 				break;
 			case ButtonAction::PLACE:
 				std::cout << "PLACE" << std::endl;
+				m_gui->changeCollisionPlacing(true);
 				break;
 			case ButtonAction::NO_ACTION:
 				std::cout << "NO_ACTION" << std::endl;

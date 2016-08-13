@@ -14,7 +14,8 @@ public:
 
 	void changeCurrentPlacingTileValue(int tilePlaceValue);
 	void changeToMode(GUI::Mode mode);
-	void createMap(); //evtl bool
+	void changeCurrentCollisionTileValue(bool collision);
+	void createMap();
 	void loadMap();
 	void configMap();
 	void saveMap();
@@ -57,6 +58,7 @@ private:
 	bool m_dragging; //um sicherzustellen, dass vor dem Auslösen von released auch innerhalb des fenster gepressed worden ist
 
 	GUI::Mode m_mode;
+	bool m_collisionLayerPlaceCollisions;
 };
 
 #endif

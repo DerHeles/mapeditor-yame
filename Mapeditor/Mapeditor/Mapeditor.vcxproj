@@ -141,8 +141,15 @@
     <ClInclude Include="Configuration.hpp" />
     <ClInclude Include="GUI.hpp" />
     <ClInclude Include="Helper.hpp" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="TileButton.hpp" />
     <ClInclude Include="EditorTileMap.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Mapeditor.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\Downloads\logo.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
