@@ -11,7 +11,7 @@ class Button : public sf::Transformable, public sf::Drawable
 public:
 	enum class ButtonAction
 	{
-		NEW, SAVE, LOAD, CONFIG, TILE_VIEW, COLLISION_VIEW, ARROW_LEFT, ARROW_RIGHT, EMPTY_TILE, DELETE, PLACE, NO_ACTION
+		NEW, SAVE, LOAD, CONFIG, TILE_VIEW, COLLISION_VIEW, ARROW_LEFT, ARROW_RIGHT, EMPTY_TILE, DELETE, PLACE
 	};
 
 	Button(float x, float y, ButtonAction action, GUI *gui, Application *app);
@@ -21,7 +21,7 @@ public:
 	void update(sf::Time elapsedTime);
 	void activate();
 	void deactivate();
-	bool isActive();
+	bool isActive() const;
 
 private:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;

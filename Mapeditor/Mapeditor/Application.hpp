@@ -2,7 +2,7 @@
 #define APPLICATION_HPP
 
 #include <SFML/Graphics.hpp>
-#include "EditorTileMap.hpp"
+#include "TileMap.hpp"
 #include "GUI.hpp"
 
 class Application
@@ -18,7 +18,7 @@ public:
 	void createMap();
 	void loadMap();
 	void configMap();
-	void saveMap();
+	void saveMap() const;
 
 private:
 	void update(sf::Time elapsedTime);
@@ -37,10 +37,8 @@ private:
 	bool isAboveGUI(int x, int y) const;
 	bool aboveValidMapArea(float x, float y) const;
 
-	void extractTilesFromTileset(const std::string& tileset, sf::Vector2u tileSize);
-
 	sf::RenderWindow m_window;
-	EditorTileMap m_map;
+	TileMap m_map;
 	sf::View m_view;
 
 	int m_currentTilePlacingValue;

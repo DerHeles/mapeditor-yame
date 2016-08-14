@@ -11,10 +11,7 @@ class TileButton : public sf::Transformable, public sf::Drawable
 public:
 
 	TileButton(float x, float y, sf::Texture *noTileTexture, sf::Texture *deactivatedTexture, int tileID, GUI *gui);
-	void handleMouseMove(float x, float y);
-	void handleMouseClick(float x, float y, int button);
-	void reset();
-	void update(sf::Time elapsedTime);
+	void handleMouseClick(float x, float y, int button) const;
 
 	void setTileset(sf::Texture *texture);
 	void showTile();
@@ -22,7 +19,7 @@ public:
 	void setTileTextureRect(const sf::IntRect& rect);
 	void activate();
 	void deactivate();
-	bool isActive();
+	bool isActive() const;
 
 private:
 	void draw(sf::RenderTarget& target, sf::RenderStates states) const override;

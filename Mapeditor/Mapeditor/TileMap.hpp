@@ -10,7 +10,7 @@ public:
 	~TileMap();
 	void changeCollisionTile(unsigned int x, unsigned int y, bool collision);
 	void changeTile(unsigned int x, unsigned int y, int value);
-	bool load(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height, int tile_gap);
+	bool load(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height, int tile_gap, const bool* collisionTiles);
 	void changeTileFromMousePosition(float x, float y, int value);
 	void changeCollisionTileFromMousePosition(float x, float y, bool collision);
 	void changeTilesFromRectangle(sf::FloatRect rect, int value);
@@ -32,8 +32,8 @@ private:
 	void updateVertices(unsigned int x, unsigned int y);
 	void updateCollisionVertices(unsigned int x, unsigned int y, bool collision);
 
-	void writeString(std::ofstream *file, const std::string& str) const;
-	std::string readString(std::ifstream *file);
+	static void writeString(std::ofstream *file, const std::string& str);
+	static std::string readString(std::ifstream *file);
 
 	sf::VertexArray m_vertices;
 	sf::Texture m_tileset;

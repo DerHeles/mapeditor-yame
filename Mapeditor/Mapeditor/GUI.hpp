@@ -24,7 +24,6 @@ public:
 	~GUI();
 	void handleMouseMove(float x, float y);
 	void handleMouseClick(float x, float y, int button);
-	void resize(unsigned int width, unsigned int height);
 	void resetButtons();
 	void update(sf::Time elapsedTime);
 	void changeToMode(Mode mode);
@@ -37,7 +36,6 @@ public:
 	void previousPage();
 
 	void mapLoaded();
-	void mapSaved();
 
 private:
 	static int index(ButtonID id);

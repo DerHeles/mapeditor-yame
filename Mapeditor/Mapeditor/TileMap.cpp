@@ -1,32 +1,35 @@
-#include "EditorTileMap.hpp"
+#include "TileMap.hpp"
 #include <iostream>
-#include <string>
 #include <fstream>
 
-EditorTileMap::EditorTileMap()
+TileMap::TileMap()
 	:
-	m_tiles(nullptr)
+	m_tiles(nullptr),
+	m_tileGap(0),
+	m_collisionTiles(nullptr),
+	m_showCollisionLayer(false)
 {
 }
 
-EditorTileMap::~EditorTileMap()
+TileMap::~TileMap()
 {
 	delete[] m_tiles;
+	delete[] m_collisionTiles;
 }
 
-void EditorTileMap::changeCollisionTile(unsigned x, unsigned y, bool collision)
+void TileMap::changeCollisionTile(unsigned int x, unsigned int y, bool collision)
 {
 	m_collisionTiles[x + y * m_mapSize.x] = collision;
 	updateCollisionVertices(x, y, collision);
 }
 
-void EditorTileMap::changeTile(unsigned int x, unsigned int y, int value)
+void TileMap::changeTile(unsigned int x, unsigned int y, int value)
 {
 	m_tiles[x + y * m_mapSize.x] = value;
 	updateVertices(x, y);
 }
 
-bool EditorTileMap::load(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height, int tile_gap)
+bool TileMap::load(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height, int tile_gap, const bool* collisionTiles)
 {
 	// load the tileset texture
 	if (!m_tileset.loadFromFile(tileset))
@@ -78,7 +81,7 @@ bool EditorTileMap::load(const std::string& tileset, sf::Vector2u tileSize, cons
 	//collision layer
 	m_collisionTiles = new bool[width * height];
 	for (int i = 0; i < width * height; ++i)
-		m_collisionTiles[i] = false;
+		m_collisionTiles[i] = collisionTiles[i];
 
 	m_collisionVertices.setPrimitiveType(sf::Quads);
 	m_collisionVertices.resize(width * height * 4);
@@ -95,16 +98,26 @@ bool EditorTileMap::load(const std::string& tileset, sf::Vector2u tileSize, cons
 			quad[3].position = sf::Vector2f(i * tileSize.x, (j + 1) * tileSize.y);
 
 			// define its 4 corners
-			quad[0].color = sf::Color::Transparent;
-			quad[1].color = sf::Color::Transparent;
-			quad[2].color = sf::Color::Transparent;
-			quad[3].color = sf::Color::Transparent;
+			if(m_collisionTiles[i + j * width])
+			{
+				quad[0].color = sf::Color(0, 0, 255, 140);
+				quad[1].color = sf::Color(0, 0, 255, 140);
+				quad[2].color = sf::Color(0, 0, 255, 140);
+				quad[3].color = sf::Color(0, 0, 255, 140);
+			}
+			else
+			{
+				quad[0].color = sf::Color::Transparent;
+				quad[1].color = sf::Color::Transparent;
+				quad[2].color = sf::Color::Transparent;
+				quad[3].color = sf::Color::Transparent;
+			}
 		}
 
 	return true;
 }
 
-void EditorTileMap::loadFromFile(std::ifstream* file)
+void TileMap::loadFromFile(std::ifstream* file)
 {
 	m_texturePath = readString(file);
 
@@ -122,13 +135,16 @@ void EditorTileMap::loadFromFile(std::ifstream* file)
 	unsigned int tileGap;
 	file->read(reinterpret_cast<char*>(&tileGap), sizeof(tileGap));
 
-	load(m_texturePath, sf::Vector2u(tileSizeX, tileSizeY), tiles, mapSizeX, mapSizeY, tileGap);
+	bool *collisionTiles = new bool[mapSizeX * mapSizeY];
+	file->read(reinterpret_cast<char*>(collisionTiles), sizeof(bool) * mapSizeX * mapSizeY);
 
+	load(m_texturePath, sf::Vector2u(tileSizeX, tileSizeY), tiles, mapSizeX, mapSizeY, tileGap, collisionTiles);
 
 	delete[] tiles;
+	delete[] collisionTiles;
 }
 
-void EditorTileMap::saveToFile(std::ofstream* file) const
+void TileMap::saveToFile(std::ofstream* file) const
 {
 	writeString(file, m_texturePath);
 
@@ -141,60 +157,56 @@ void EditorTileMap::saveToFile(std::ofstream* file) const
 	file->write(reinterpret_cast<const char*>(m_tiles), sizeof(int) * m_mapSize.x * m_mapSize.y);
 
 	file->write(reinterpret_cast<const char*>(&m_tileGap), sizeof(m_tileGap));
+
+	file->write(reinterpret_cast<const char*>(m_collisionTiles), sizeof(bool) * m_mapSize.x * m_mapSize.y);
 }
 
-const sf::Vector2u& EditorTileMap::getTileSize() const
+const sf::Vector2u& TileMap::getTileSize() const
 {
 	return m_tileSize;
 }
 
-const sf::Vector2u& EditorTileMap::getMapSize() const
+const sf::Vector2u& TileMap::getMapSize() const
 {
 	return m_mapSize;
 }
 
-const std::string& EditorTileMap::getTexturePath() const
+const std::string& TileMap::getTexturePath() const
 {
 	return m_texturePath;
 }
 
-int EditorTileMap::getTileGap() const
+int TileMap::getTileGap() const
 {
 	return m_tileGap;
 }
 
-void EditorTileMap::showCollisionLayer()
+void TileMap::showCollisionLayer()
 {
 	m_showCollisionLayer = true;
 }
 
-void EditorTileMap::hideCollisionLayer()
+void TileMap::hideCollisionLayer()
 {
 	m_showCollisionLayer = false;
 }
 
-void EditorTileMap::writeString(std::ofstream* file, const std::string& str) const
+void TileMap::writeString(std::ofstream* file, const std::string& str)
 {
-	// get the length of the string data
 	unsigned int len = str.size();
 
-	// write the size:
 	file->write(reinterpret_cast<const char*>(&len), sizeof(len));
 
-	// write the actual string data:
 	file->write(str.c_str(), len);
 }
 
-std::string EditorTileMap::readString(std::ifstream* file)
+std::string TileMap::readString(std::ifstream* file)
 {
-	// this probably isn't the optimal way to do it, but whatever
 	std::string str;
 
-	// get the length
 	unsigned int len;
 	file->read(reinterpret_cast<char*>(&len), sizeof(len));
 
-	// we can't read to string directly, so instead, create a temporary buffer
 	if (len > 0)
 	{
 		char* buf = new char[len];
@@ -205,7 +217,7 @@ std::string EditorTileMap::readString(std::ifstream* file)
 	return str;
 }
 
-void EditorTileMap::changeTileFromMousePosition(float x, float y, int value)
+void TileMap::changeTileFromMousePosition(float x, float y, int value)
 {
 	int realX, realY;
 	realX = x / m_tileSize.x;
@@ -216,7 +228,7 @@ void EditorTileMap::changeTileFromMousePosition(float x, float y, int value)
 
 }
 
-void EditorTileMap::changeCollisionTileFromMousePosition(float x, float y, bool collision)
+void TileMap::changeCollisionTileFromMousePosition(float x, float y, bool collision)
 {
 	int realX, realY;
 	realX = x / m_tileSize.x;
@@ -226,7 +238,7 @@ void EditorTileMap::changeCollisionTileFromMousePosition(float x, float y, bool 
 	changeCollisionTile(realX, realY, collision);
 }
 
-void EditorTileMap::changeTilesFromRectangle(sf::FloatRect rect, int value)
+void TileMap::changeTilesFromRectangle(sf::FloatRect rect, int value)
 {
 	int realX, realY, realX2, realY2;
 
@@ -246,7 +258,7 @@ void EditorTileMap::changeTilesFromRectangle(sf::FloatRect rect, int value)
 			changeTile(i, j, value);
 }
 
-void EditorTileMap::changeCollisionTilesFromRectangle(sf::FloatRect rect, bool collision)
+void TileMap::changeCollisionTilesFromRectangle(sf::FloatRect rect, bool collision)
 {
 	int realX, realY, realX2, realY2;
 
@@ -266,7 +278,7 @@ void EditorTileMap::changeCollisionTilesFromRectangle(sf::FloatRect rect, bool c
 			changeCollisionTile(i, j, collision);
 }
 
-bool EditorTileMap::reload(const std::string& tileset, sf::Vector2u tileSize, unsigned int tile_gap)
+bool TileMap::reload(const std::string& tileset, sf::Vector2u tileSize, unsigned int tile_gap)
 {
 	// load the tileset texture
 	if (!m_tileset.loadFromFile(tileset))
@@ -302,11 +314,20 @@ bool EditorTileMap::reload(const std::string& tileset, sf::Vector2u tileSize, un
 			quad[1].texCoords = sf::Vector2f(tu * (m_tileSize.x + m_tileGap) + m_tileSize.x, tv * (m_tileSize.y + m_tileGap));
 			quad[2].texCoords = sf::Vector2f(tu * (m_tileSize.x + m_tileGap) + m_tileSize.x, tv * (m_tileSize.y + m_tileGap) + m_tileSize.y);
 			quad[3].texCoords = sf::Vector2f(tu * (m_tileSize.x + m_tileGap), tv * (m_tileSize.y + m_tileGap) + m_tileSize.y);
+
+
+			// get a pointer to the current tile's quad
+			sf::Vertex* quad2 = &m_collisionVertices[(i + j * m_mapSize.x) * 4];
+
+			quad2[0].position = sf::Vector2f(i * tileSize.x, j * tileSize.y);
+			quad2[1].position = sf::Vector2f((i + 1) * tileSize.x, j * tileSize.y);
+			quad2[2].position = sf::Vector2f((i + 1) * tileSize.x, (j + 1) * tileSize.y);
+			quad2[3].position = sf::Vector2f(i * tileSize.x, (j + 1) * tileSize.y);
 		}
 	return true;
 }
 
-void EditorTileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const
+void TileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
 	// apply the transform
 	states.transform *= getTransform();
@@ -321,7 +342,7 @@ void EditorTileMap::draw(sf::RenderTarget& target, sf::RenderStates states) cons
 		target.draw(m_collisionVertices, states);
 }
 
-void EditorTileMap::updateVertices(unsigned int x, unsigned int y)
+void TileMap::updateVertices(unsigned int x, unsigned int y)
 {
 	// get the current tile number
 	int tileNumber = m_tiles[x + y * m_mapSize.x];
@@ -340,7 +361,7 @@ void EditorTileMap::updateVertices(unsigned int x, unsigned int y)
 	quad[3].texCoords = sf::Vector2f(tu * (m_tileSize.x + m_tileGap), tv * (m_tileSize.y + m_tileGap) + m_tileSize.y);
 }
 
-void EditorTileMap::updateCollisionVertices(unsigned int x, unsigned int y, bool collision)
+void TileMap::updateCollisionVertices(unsigned int x, unsigned int y, bool collision)
 {
 	// get a pointer to the current tile's quad
 	sf::Vertex* quad = &m_collisionVertices[(x + y * m_mapSize.x) * 4];

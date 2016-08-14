@@ -130,20 +130,18 @@
     <ClCompile Include="Button.cpp" />
     <ClCompile Include="Configuration.cpp" />
     <ClCompile Include="GUI.cpp" />
-    <ClCompile Include="Helper.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TileButton.cpp" />
-    <ClCompile Include="EditorTileMap.cpp" />
+    <ClCompile Include="TileMap.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.hpp" />
     <ClInclude Include="Button.hpp" />
     <ClInclude Include="Configuration.hpp" />
     <ClInclude Include="GUI.hpp" />
-    <ClInclude Include="Helper.hpp" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="TileButton.hpp" />
-    <ClInclude Include="EditorTileMap.hpp" />
+    <ClInclude Include="TileMap.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Mapeditor.rc" />

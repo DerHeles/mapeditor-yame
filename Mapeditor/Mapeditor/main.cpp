@@ -1,9 +1,9 @@
 #include "Application.hpp"
-#include <iostream>
+#include "Configuration.hpp"
 
 int main()
 {
-	Application app(1024, 768);
+	Application app(1000, cfg::gui_height);
 	app.run();
 
 	return 0;

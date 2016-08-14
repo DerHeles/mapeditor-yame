@@ -1,7 +1,7 @@
 #include "GUI.hpp"
 #include <iostream>
 #include "Application.hpp"
-#include "Helper.hpp"
+#include "Configuration.hpp"
 
 GUI::GUI(unsigned int width, unsigned int height, Application *application)
 	:
@@ -28,7 +28,7 @@ GUI::GUI(unsigned int width, unsigned int height, Application *application)
 	m_borderShapes[4].setPosition(0.f, 612.f);
 	m_borderShapes[4].setFillColor(sf::Color::Black);
 
-	m_borderShapes[5].setSize(sf::Vector2f(8, hlp::gui_height));
+	m_borderShapes[5].setSize(sf::Vector2f(8, cfg::gui_height));
 	m_borderShapes[5].setPosition(240.f, 0.f);
 	m_borderShapes[5].setFillColor(sf::Color::Black);
 
@@ -82,7 +82,7 @@ GUI::GUI(unsigned int width, unsigned int height, Application *application)
 	m_tileButtons.push_back(new TileButton( 14.f, 548.f, &m_noTileTexture, &m_deactivatedTileTexture, id++, this));
 	m_tileButtons.push_back(new TileButton( 68.f, 548.f, &m_noTileTexture, &m_deactivatedTileTexture, id++, this));
 	m_tileButtons.push_back(new TileButton(122.f, 548.f, &m_noTileTexture, &m_deactivatedTileTexture, id++, this));
-	m_tileButtons.push_back(new TileButton(176.f, 548.f, &m_noTileTexture, &m_deactivatedTileTexture, id++, this));
+	m_tileButtons.push_back(new TileButton(176.f, 548.f, &m_noTileTexture, &m_deactivatedTileTexture, id, this));
 
 	m_currentPlacingTile.setTexture(&m_noTileTexture);
 	m_currentPlacingTile.setSize(sf::Vector2f(50.f, 50.f));
@@ -142,24 +142,15 @@ void GUI::handleMouseClick(float x, float y, int button)
 	}
 }
 
-void GUI::resize(unsigned int width, unsigned int height)
-{
-	//m_borderShapes[0].setSize(sf::Vector2f(8.f, height));
-}
-
 void GUI::resetButtons()
 {
 	for (auto button : m_buttons)
-		button->reset();
-	for (auto button : m_tileButtons)
 		button->reset();
 }
 
 void GUI::update(sf::Time elapsedTime)
 {
 	for (auto button : m_buttons)
-		button->update(elapsedTime);
-	for (auto button : m_tileButtons)
 		button->update(elapsedTime);
 }
 
@@ -241,8 +232,8 @@ void GUI::changeToMode(Mode mode)
 		{
 			m_buttons[index(ButtonID::TILE_VIEW)]->activate();
 			m_buttons[index(ButtonID::COLLISION_VIEW)]->deactivate();
-			m_buttons[index(ButtonID::PLACE)]->activate();
-			m_buttons[index(ButtonID::DELETE)]->deactivate();
+			m_buttons[index(ButtonID::PLACE)]->deactivate();
+			m_buttons[index(ButtonID::DELETE)]->activate();
 			m_buttons[index(ButtonID::ARROW_LEFT)]->deactivate();
 			m_buttons[index(ButtonID::ARROW_RIGHT)]->deactivate();
 
@@ -349,10 +340,6 @@ void GUI::mapLoaded()
 {
 	m_buttons[index(ButtonID::SAVE)]->activate();
 	m_buttons[index(ButtonID::CONFIG)]->activate();
-}
-
-void GUI::mapSaved()
-{
 }
 
 int GUI::index(ButtonID id)

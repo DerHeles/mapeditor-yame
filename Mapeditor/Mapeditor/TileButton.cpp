@@ -15,11 +15,7 @@ TileButton::TileButton(float x, float y, sf::Texture *noTileTexture, sf::Texture
 	m_deactivatedTileTexture = deactivatedTexture;
 }
 
-void TileButton::handleMouseMove(float x, float y)
-{
-}
-
-void TileButton::handleMouseClick(float x, float y, int button)
+void TileButton::handleMouseClick(float x, float y, int button) const
 {
 	sf::Vector2f v = getTransform().getInverse().transformPoint(x, y);
 
@@ -30,14 +26,6 @@ void TileButton::handleMouseClick(float x, float y, int button)
 			m_gui->changeCurrentPlacingTile(m_currentTileID, m_shape.getTextureRect());
 		}
 	}
-}
-
-void TileButton::reset()
-{
-}
-
-void TileButton::update(sf::Time elapsedTime)
-{
 }
 
 void TileButton::activate()
@@ -60,7 +48,7 @@ void TileButton::deactivate()
 	m_shape.setTexture(m_deactivatedTileTexture, true);
 }
 
-bool TileButton::isActive()
+bool TileButton::isActive() const
 {
 	return m_active;
 }

@@ -1,23 +1,22 @@
 #include "Application.hpp"
 #include "Configuration.hpp"
 #include <iostream>
-#include "Helper.hpp"
 #include <fstream>
 
 Application::Application(unsigned width, unsigned height)
 	:
 	m_window(sf::VideoMode(width, height), "YAME - Mode: TILE", sf::Style::Default),
-	m_gui(width, height, this),
-	m_dragging(false),
 	m_currentTilePlacingValue(-1),
 	m_showSelectedTile(false),
+	m_gui(width, height, this),
+	m_dragging(false),
 	m_mode(GUI::Mode::TILE),
 	m_collisionLayerPlaceCollisions(true)
 {
 	m_window.setFramerateLimit(60);
 
-	m_view.setSize(m_window.getSize().x - hlp::gui_width, m_window.getSize().y);
-	m_view.setViewport(sf::FloatRect(1.f - (static_cast<float>(width) - hlp::gui_width) / static_cast<float>(width), 0.f, (static_cast<float>(width) - hlp::gui_width) / static_cast<float>(width), 1.f));
+	m_view.setSize(m_window.getSize().x - cfg::gui_width, m_window.getSize().y);
+	m_view.setViewport(sf::FloatRect(1.f - (static_cast<float>(width) - cfg::gui_width) / static_cast<float>(width), 0.f, (static_cast<float>(width) - cfg::gui_width) / static_cast<float>(width), 1.f));
 
 	//GUI
 	m_guiView = m_window.getView();
@@ -80,6 +79,7 @@ void Application::createMap()
 	int tile_width;
 	int tile_height;
 	int tile_gap;
+	bool *collisionTiles;
 
 	std::cout << "~~~Create Map~~~\ntileset name: " << std::flush;
 	std::cin >> tileset;
@@ -98,7 +98,12 @@ void Application::createMap()
 	tiles = new int[width * height];
 	for (int i = 0; i < width * height; ++i)
 		tiles[i] = 0;
-	if(m_map.load("tilesets/" + tileset, sf::Vector2u(tile_width, tile_height), tiles, width, height, tile_gap))
+
+	collisionTiles = new bool[width * height];
+	for (int i = 0; i < width * height; ++i)
+		collisionTiles[i] = false;
+
+	if(m_map.load("tilesets/" + tileset, sf::Vector2u(tile_width, tile_height), tiles, width, height, tile_gap, collisionTiles))
 	{
 		std::cout << "Map created!" << std::endl;
 
@@ -117,6 +122,9 @@ void Application::createMap()
 	{
 		std::cout << "Map creation failed!" << std::endl;
 	}
+
+	delete[] tiles;
+	delete[] collisionTiles;
 }
 
 void Application::loadMap()
@@ -189,7 +197,7 @@ void Application::configMap()
 	}
 }
 
-void Application::saveMap()
+void Application::saveMap() const
 {
 
 	std::string mapname;
@@ -243,19 +251,19 @@ void Application::processEvents()
 			case sf::Event::Resized:
 				if (event.size.width < 800)
 				{
-					if (event.size.height < 600)
-						m_window.setSize(sf::Vector2u(800, 600));
+					if (event.size.height < cfg::gui_height)
+						m_window.setSize(sf::Vector2u(800, cfg::gui_height));
 					else
 						m_window.setSize(sf::Vector2u(800, event.size.height));
 				}
-				if (event.size.height < 600)
-					m_window.setSize(sf::Vector2u(event.size.width, 600));
+				if (event.size.height < cfg::gui_height)
+					m_window.setSize(sf::Vector2u(event.size.width, cfg::gui_height));
 
 				m_guiView.setSize(m_window.getSize().x, m_window.getSize().y);
 				m_gui.setPosition(m_window.mapPixelToCoords(sf::Vector2i(0,0), m_guiView));
 
-				m_view.setViewport(sf::FloatRect(1.f - (static_cast<float>(m_window.getSize().x) - hlp::gui_width) / static_cast<float>(m_window.getSize().x), 0.f, (static_cast<float>(m_window.getSize().x) - hlp::gui_width) / static_cast<float>(m_window.getSize().x), 1.f));
-				m_view.setSize(m_window.getSize().x - hlp::gui_width, m_window.getSize().y);
+				m_view.setViewport(sf::FloatRect(1.f - (static_cast<float>(m_window.getSize().x) - cfg::gui_width) / static_cast<float>(m_window.getSize().x), 0.f, (static_cast<float>(m_window.getSize().x) - cfg::gui_width) / static_cast<float>(m_window.getSize().x), 1.f));
+				m_view.setSize(m_window.getSize().x - cfg::gui_width, m_window.getSize().y);
 
 				m_gui.resize(event.size.width, event.size.height);
 
@@ -314,12 +322,12 @@ void Application::handleKey(const sf::Event& event)
 
 bool Application::isAboveMapArea(int x, int y) const
 {
-	return (hlp::gui_width < x && x < m_window.getSize().x && 0 < y && y < m_window.getSize().y);
+	return (cfg::gui_width < x && x < m_window.getSize().x && 0 < y && y < m_window.getSize().y);
 }
 
 bool Application::isAboveGUI(int x, int y) const
 {
-	return (0 < x && x <= hlp::gui_width && 0 < y && y < m_window.getSize().y);
+	return (0 < x && x <= cfg::gui_width && 0 < y && y < m_window.getSize().y);
 }
 
 bool Application::aboveValidMapArea(float x, float y) const
@@ -329,15 +337,11 @@ bool Application::aboveValidMapArea(float x, float y) const
 	return true;
 }
 
-void Application::extractTilesFromTileset(const std::string& tileset, sf::Vector2u tileSize)
-{
-}
-
 void Application::render()
 {
 	m_window.clear(sf::Color(100, 100, 100));
 
-	//EditorTileMap
+	//TileMap
 	m_window.setView(m_view);
 	m_window.draw(m_map);
 	if (m_showSelectedTile)
@@ -661,29 +665,27 @@ void Application::handleMouseButtonRelease(const sf::Event& event)
 			m_dragEnd.x = position.x;
 			m_dragEnd.y = position.y;
 
-			if(m_currentTilePlacingValue >= 0)//nur falls auch TileWert ausgewählt wurde
+			if(m_dragStart == m_dragEnd)
 			{
-				if(m_dragStart == m_dragEnd)
-				{
-					if (m_mode == GUI::Mode::TILE)
-						m_map.changeTileFromMousePosition(position.x, position.y, m_currentTilePlacingValue);
-					else if (m_mode == GUI::Mode::COLLSION)
-						m_map.changeCollisionTileFromMousePosition(position.x, position.y, m_collisionLayerPlaceCollisions);
-				}
-				else
-				{
-					sf::FloatRect rect;
-					rect.left = std::min(m_dragStart.x, m_dragEnd.x);
-					rect.top = std::min(m_dragStart.y, m_dragEnd.y);
-					rect.width = std::abs(m_dragStart.x - m_dragEnd.x);
-					rect.height = std::abs(m_dragStart.y - m_dragEnd.y);
-
-					if (m_mode == GUI::Mode::TILE)
-						m_map.changeTilesFromRectangle(rect, m_currentTilePlacingValue);
-					else if (m_mode == GUI::Mode::COLLSION)
-						m_map.changeCollisionTilesFromRectangle(rect, m_collisionLayerPlaceCollisions);
-				}
+				if (m_mode == GUI::Mode::TILE && m_currentTilePlacingValue >= 0)
+					m_map.changeTileFromMousePosition(position.x, position.y, m_currentTilePlacingValue);
+				else if (m_mode == GUI::Mode::COLLSION)
+					m_map.changeCollisionTileFromMousePosition(position.x, position.y, m_collisionLayerPlaceCollisions);
 			}
+			else
+			{
+				sf::FloatRect rect;
+				rect.left = std::min(m_dragStart.x, m_dragEnd.x);
+				rect.top = std::min(m_dragStart.y, m_dragEnd.y);
+				rect.width = std::abs(m_dragStart.x - m_dragEnd.x);
+				rect.height = std::abs(m_dragStart.y - m_dragEnd.y);
+
+				if (m_mode == GUI::Mode::TILE && m_currentTilePlacingValue >= 0)
+					m_map.changeTilesFromRectangle(rect, m_currentTilePlacingValue);
+				else if (m_mode == GUI::Mode::COLLSION)
+					m_map.changeCollisionTilesFromRectangle(rect, m_collisionLayerPlaceCollisions);
+			}
+
 			int realX, realY;
 			realX = position.x / m_tileSize.x;
 			realY = position.y / m_tileSize.y;
@@ -701,39 +703,38 @@ void Application::handleMouseButtonRelease(const sf::Event& event)
 			m_dragEnd.x = position.x;
 			m_dragEnd.y = position.y;
 
-			if (m_currentTilePlacingValue >= 0)//nur falls auch TileWert ausgewählt wurde
+			if (m_dragStart != m_dragEnd)
 			{
-				if (m_dragStart != m_dragEnd)
-				{
-					sf::FloatRect rect;
-					rect.left = std::min(m_dragStart.x, m_dragEnd.x);
-					rect.top = std::min(m_dragStart.y, m_dragEnd.y);
-					rect.width = std::abs(m_dragStart.x - m_dragEnd.x);
-					rect.height = std::abs(m_dragStart.y - m_dragEnd.y);
+				sf::FloatRect rect;
+				rect.left = std::min(m_dragStart.x, m_dragEnd.x);
+				rect.top = std::min(m_dragStart.y, m_dragEnd.y);
+				rect.width = std::abs(m_dragStart.x - m_dragEnd.x);
+				rect.height = std::abs(m_dragStart.y - m_dragEnd.y);
 
-					//horizonzal
-					if(rect.left < 0)
-					{
-						rect.width = rect.left + rect.width;
-						rect.left = 0;
-					}
-					else if((rect.left + rect.width) > (m_mapSize.x * m_tileSize.x))
-					{
-						rect.width = (m_mapSize.x * m_tileSize.x) - rect.left - 1;
-					}
-					//vertikal
-					if(rect.top < 0)
-					{
-						rect.height = rect.top + rect.height;
-						rect.top = 0;
-					}
-					else if((rect.top + rect.height) > (m_mapSize.y * m_tileSize.y))
-					{
-						rect.height = (m_mapSize.y * m_tileSize.y) - rect.top - 1;
-					}
-					if (m_mode == GUI::Mode::TILE)
-						m_map.changeTilesFromRectangle(rect, m_currentTilePlacingValue);
+				//horizonzal
+				if(rect.left < 0)
+				{
+					rect.width = rect.left + rect.width;
+					rect.left = 0;
 				}
+				else if((rect.left + rect.width) > (m_mapSize.x * m_tileSize.x))
+				{
+					rect.width = (m_mapSize.x * m_tileSize.x) - rect.left - 1;
+				}
+				//vertikal
+				if(rect.top < 0)
+				{
+					rect.height = rect.top + rect.height;
+					rect.top = 0;
+				}
+				else if((rect.top + rect.height) > (m_mapSize.y * m_tileSize.y))
+				{
+					rect.height = (m_mapSize.y * m_tileSize.y) - rect.top - 1;
+				}
+				if (m_mode == GUI::Mode::TILE && m_currentTilePlacingValue >= 0)
+					m_map.changeTilesFromRectangle(rect, m_currentTilePlacingValue);
+				else if (m_mode == GUI::Mode::COLLSION)
+					m_map.changeCollisionTilesFromRectangle(rect, m_collisionLayerPlaceCollisions);
 			}
 		}
 

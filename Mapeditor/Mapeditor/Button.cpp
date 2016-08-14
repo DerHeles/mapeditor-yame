@@ -6,9 +6,9 @@
 Button::Button(float x, float y, ButtonAction action, GUI *gui, Application *app)
 	:
 	m_action(action),
-	m_active(true),
 	m_clicked(false),
 	m_mouseOver(false),
+	m_active(true),
 	m_gui(gui),
 	m_app(app)
 {
@@ -61,10 +61,9 @@ Button::Button(float x, float y, ButtonAction action, GUI *gui, Application *app
 		activeTexture.append("place.png");
 		inactiveTexture.append("place_gray.png");
 		break;
-	case ButtonAction::NO_ACTION:
+	default:
+		std::cout << "Button ctor wrong ButtonAction!" << std::endl;
 		return;
-		break;
-	default: break;
 	}
 	if (!m_activeTexture.loadFromFile(activeTexture))
 		std::cerr << "Button could not load active texture!" << std::endl;
@@ -146,9 +145,6 @@ void Button::handleMouseClick(float x, float y, int button)
 				std::cout << "PLACE" << std::endl;
 				m_gui->changeCollisionPlacing(true);
 				break;
-			case ButtonAction::NO_ACTION:
-				std::cout << "NO_ACTION" << std::endl;
-				break;
 			default:
 				std::cout << "no suitable action" << std::endl;
 				break;
@@ -190,7 +186,7 @@ void Button::deactivate()
 	m_sprite.setTexture(m_inactiveTexture);
 }
 
-bool Button::isActive()
+bool Button::isActive() const
 {
 	return m_active;
 }
