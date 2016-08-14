@@ -13,8 +13,8 @@ Button::Button(float x, float y, ButtonAction action, GUI *gui, Application *app
 	m_app(app)
 {
 	setPosition(x, y);
-	std::string activeTexture = "resources/";
-	std::string inactiveTexture = "resources/";
+	std::string activeTexture = "img/";
+	std::string inactiveTexture = "img/";
 	switch(action)
 	{
 	case ButtonAction::NEW:
@@ -103,46 +103,35 @@ void Button::handleMouseClick(float x, float y, int button)
 			switch (m_action)
 			{
 			case ButtonAction::NEW:
-				std::cout << "NEW" << std::endl;
 				m_app->createMap();
 				break;
 			case ButtonAction::LOAD:
-				std::cout << "LOAD" << std::endl;
 				m_app->loadMap();
 				break;
 			case ButtonAction::SAVE:
-				std::cout << "SAVE" << std::endl;
 				m_app->saveMap();
 				break;
 			case ButtonAction::CONFIG:
-				std::cout << "CONFIG" << std::endl;
 				m_app->configMap();
 				break;
 			case ButtonAction::TILE_VIEW:
-				std::cout << "TILE_VIEW" << std::endl;
 				m_gui->changeToMode(GUI::Mode::TILE);
 				break;
 			case ButtonAction::COLLISION_VIEW:
-				std::cout << "COLLISION_VIEW" << std::endl;
 				m_gui->changeToMode(GUI::Mode::COLLSION);
 				break;
 			case ButtonAction::ARROW_LEFT:
-				std::cout << "ARROW_LEFT" << std::endl;
 				m_gui->previousPage();
 				break;
 			case ButtonAction::ARROW_RIGHT:
-				std::cout << "ARROW_RIGHT" << std::endl;
 				m_gui->nextPage();
 				break;
 			case ButtonAction::EMPTY_TILE:
-				std::cout << "EMPTY_TILE" << std::endl;
 				break;
 			case ButtonAction::DELETE:
-				std::cout << "DELETE" << std::endl;
 				m_gui->changeCollisionPlacing(false);
 				break;
 			case ButtonAction::PLACE:
-				std::cout << "PLACE" << std::endl;
 				m_gui->changeCollisionPlacing(true);
 				break;
 			default:

@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 
-Application::Application(unsigned width, unsigned height)
+Application::Application(unsigned int width, unsigned int height)
 	:
 	m_window(sf::VideoMode(width, height), "YAME - Mode: TILE", sf::Style::Default),
 	m_currentTilePlacingValue(-1),
@@ -18,7 +18,6 @@ Application::Application(unsigned width, unsigned height)
 	m_view.setSize(m_window.getSize().x - cfg::gui_width, m_window.getSize().y);
 	m_view.setViewport(sf::FloatRect(1.f - (static_cast<float>(width) - cfg::gui_width) / static_cast<float>(width), 0.f, (static_cast<float>(width) - cfg::gui_width) / static_cast<float>(width), 1.f));
 
-	//GUI
 	m_guiView = m_window.getView();
 
 	m_selectedTilesShape.setFillColor(sf::Color(255, 100, 100, 180));
@@ -83,18 +82,52 @@ void Application::createMap()
 
 	std::cout << "~~~Create Map~~~\ntileset name: " << std::flush;
 	std::cin >> tileset;
+
 	std::cout << "map width: " << std::flush;
 	std::cin >> width;
+	while (std::cin.fail()) {
+		std::cout << "wrong input for map width!\nreenter map width: " << std::flush;
+		std::cin.clear();
+		std::cin.ignore(256, '\n');
+		std::cin >> width;
+	}
+
 	std::cout << "map height: " << std::flush;
 	std::cin >> height;
+	while (std::cin.fail()) {
+		std::cout << "wrong input for map height!\nreenter map height: " << std::flush;
+		std::cin.clear();
+		std::cin.ignore(256, '\n');
+		std::cin >> height;
+	}
+
 	std::cout << "tile width: " << std::flush;
 	std::cin >> tile_width;
+	while (std::cin.fail()) {
+		std::cout << "wrong input for tile width!\nreenter tile width: " << std::flush;
+		std::cin.clear();
+		std::cin.ignore(256, '\n');
+		std::cin >> tile_width;
+	}
+
 	std::cout << "tile height: " << std::flush;
 	std::cin >> tile_height;
+	while (std::cin.fail()) {
+		std::cout << "wrong input for tile height!\nreenter tile height: " << std::flush;
+		std::cin.clear();
+		std::cin.ignore(256, '\n');
+		std::cin >> tile_height;
+	}
+
 	std::cout << "tile gap: " << std::flush;
 	std::cin >> tile_gap;
+	while (std::cin.fail()) {
+		std::cout << "wrong input for tile gap!\nreenter tile gap: " << std::flush;
+		std::cin.clear();
+		std::cin.ignore(256, '\n');
+		std::cin >> tile_gap;
+	}
 
-	//auf valide werte prüfen! OB INT UNSW
 	tiles = new int[width * height];
 	for (int i = 0; i < width * height; ++i)
 		tiles[i] = 0;
@@ -170,14 +203,33 @@ void Application::configMap()
 
 	std::cout << "~~~Config existing Map~~~\ntileset name (currently = " << currentTileset << " ): "<< std::flush;
 	std::cin >> tileset;
+
 	std::cout << "tile width (currently = " << m_tileSize.x << " ): " << std::flush;
 	std::cin >> tile_width;
+	while (std::cin.fail()) {
+		std::cout << "wrong input for tile width!\nreenter tile width: " << std::flush;
+		std::cin.clear();
+		std::cin.ignore(256, '\n');
+		std::cin >> tile_width;
+	}
+
 	std::cout << "tile height (currently = " << m_tileSize.y << " ): " << std::flush;
 	std::cin >> tile_height;
+	while (std::cin.fail()) {
+		std::cout << "wrong input for tile height!\nreenter tile height: " << std::flush;
+		std::cin.clear();
+		std::cin.ignore(256, '\n');
+		std::cin >> tile_height;
+	}
+
 	std::cout << "tile gap (currently = " << m_map.getTileGap() << " ): " << std::flush;
 	std::cin >> tile_gap;
-
-	//auf valide werte prüfen! OB INT UNSW
+	while (std::cin.fail()) {
+		std::cout << "wrong input for tile gap!\nreenter tile gap: " << std::flush;
+		std::cin.clear();
+		std::cin.ignore(256, '\n');
+		std::cin >> tile_gap;
+	}
 
 	if (m_map.reload("tilesets/" + tileset, sf::Vector2u(tile_width, tile_height),  tile_gap))
 	{
@@ -265,8 +317,6 @@ void Application::processEvents()
 				m_view.setViewport(sf::FloatRect(1.f - (static_cast<float>(m_window.getSize().x) - cfg::gui_width) / static_cast<float>(m_window.getSize().x), 0.f, (static_cast<float>(m_window.getSize().x) - cfg::gui_width) / static_cast<float>(m_window.getSize().x), 1.f));
 				m_view.setSize(m_window.getSize().x - cfg::gui_width, m_window.getSize().y);
 
-				m_gui.resize(event.size.width, event.size.height);
-
 				break;
 			default:
 				;
@@ -277,7 +327,6 @@ void Application::processEvents()
 
 void Application::handleMouseWheelScroll(const sf::Event& event)
 {
-	//std::cout << "MouseWheelScrolled delta=" << event.mouseWheelScroll.delta << std::endl;
 	if (event.mouseWheelScroll.delta > 0)
 		for (int i = 0; i < event.mouseWheelScroll.delta; ++i)
 			m_view.zoom(0.95f);
@@ -579,7 +628,7 @@ void Application::handleMouseMove(const sf::Event& event)
 				{
 					rect.width = (m_mapSize.x * m_tileSize.x) - rect.left - 1;
 				}
-				//vertikal
+				//vertical
 				if (rect.top < 0)
 				{
 					rect.height = rect.top + rect.height;
@@ -627,7 +676,7 @@ void Application::handleMouseMove(const sf::Event& event)
 
 void Application::handleMouseButtonPress(const sf::Event& event)
 {
-	m_dragging = false; //nötig?
+	m_dragging = false;
 
 	//Mouse over Map Area
 	if (isAboveMapArea(event.mouseButton.x, event.mouseButton.y))
@@ -635,7 +684,7 @@ void Application::handleMouseButtonPress(const sf::Event& event)
 		//calculate tile
 		sf::Vector2f position = m_window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y), m_view);
 
-		//innerhalb der map klicken um dragging zu starten
+		//click inside map to start dragging
 		if (!aboveValidMapArea(position.x, position.y))
 			return;
 
@@ -721,7 +770,7 @@ void Application::handleMouseButtonRelease(const sf::Event& event)
 				{
 					rect.width = (m_mapSize.x * m_tileSize.x) - rect.left - 1;
 				}
-				//vertikal
+				//vertical
 				if(rect.top < 0)
 				{
 					rect.height = rect.top + rect.height;
@@ -738,12 +787,6 @@ void Application::handleMouseButtonRelease(const sf::Event& event)
 			}
 		}
 
-	}
-	//Mouse over GUI
-	else if (isAboveGUI(event.mouseButton.x, event.mouseButton.y))
-	{
-		/*m_showSelectedTile = false;
-		m_selectedTilesShape.setSize(sf::Vector2f(m_tileSize.x, m_tileSize.y));*/
 	}
 
 	m_dragging = false;

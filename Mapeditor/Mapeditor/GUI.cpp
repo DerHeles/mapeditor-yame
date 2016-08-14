@@ -33,9 +33,6 @@ GUI::GUI(unsigned int width, unsigned int height, Application *application)
 	m_borderShapes[5].setFillColor(sf::Color::Black);
 
 
-
-
-	//wegen ursprünglichem sf::text als button*
 	m_buttons.push_back(new Button(8.f, 16.f, Button::ButtonAction::NEW, this, application));
 	m_buttons.push_back(new Button(124.f, 16.f, Button::ButtonAction::LOAD, this, application));
 	m_buttons.push_back(new Button(8.f, 79.f, Button::ButtonAction::CONFIG, this, application));
@@ -55,16 +52,16 @@ GUI::GUI(unsigned int width, unsigned int height, Application *application)
 	m_tilesBackground.setSize(sf::Vector2f(224.f, 224.f));
 	m_tilesBackground.setFillColor(sf::Color(60, 60, 60));
 
-	if (!m_noTileTexture.loadFromFile("resources/button_no_tile.png"))
+	if (!m_noTileTexture.loadFromFile("img/button_no_tile.png"))
 		std::cerr << "GUI ctor error loading noTile texture!" << std::endl;
 
-	if (!m_deactivatedTileTexture.loadFromFile("resources/tile_deactived.png"))
+	if (!m_deactivatedTileTexture.loadFromFile("img/tile_deactived.png"))
 		std::cerr << "GUI ctor error loading deactivatedTile texture!" << std::endl;
 
 	//TILE BUTTONS
 	int id = 0;
 
-	m_tileButtons.push_back(new TileButton( 14.f, 386.f, &m_noTileTexture, &m_deactivatedTileTexture, id++, this)); //4 abstand zwischen tiles
+	m_tileButtons.push_back(new TileButton( 14.f, 386.f, &m_noTileTexture, &m_deactivatedTileTexture, id++, this));
 	m_tileButtons.push_back(new TileButton( 68.f, 386.f, &m_noTileTexture, &m_deactivatedTileTexture, id++, this));
 	m_tileButtons.push_back(new TileButton(122.f, 386.f, &m_noTileTexture, &m_deactivatedTileTexture, id++, this));
 	m_tileButtons.push_back(new TileButton(176.f, 386.f, &m_noTileTexture, &m_deactivatedTileTexture, id++, this));
@@ -88,7 +85,7 @@ GUI::GUI(unsigned int width, unsigned int height, Application *application)
 	m_currentPlacingTile.setSize(sf::Vector2f(50.f, 50.f));
 	m_currentPlacingTile.setPosition(41.f, 319.f);
 
-	if (!m_frameTexture.loadFromFile("resources/label_current_tile.png"))
+	if (!m_frameTexture.loadFromFile("img/label_current_tile.png"))
 		std::cerr << "GUI ctor error loading frame texture!" << std::endl;
 	m_currentPlacingTileFrame.setTexture(m_frameTexture);
 	m_currentPlacingTileFrame.setPosition(38.f, 316.f);
@@ -124,9 +121,8 @@ void GUI::handleMouseMove(float x, float y)
 void GUI::handleMouseClick(float x, float y, int button)
 {
 	sf::Vector2f pos(x, y);
-	//std::cout << "handleMouseClick before trans: x=" << x << " y=" << y;
 	pos = getTransform().getInverse().transformPoint(pos);
-	//std::cout << "handleMouseClick after trans: x=" << pos.x << " y=" << pos.y << std::endl;
+
 	for (auto b : m_buttons)
 		if(b->isActive())
 			b->handleMouseClick(pos.x, pos.y, button);
@@ -280,7 +276,6 @@ void GUI::loadTiles(const std::string& tileset, float tile_width, float tile_hei
 	if (f1 != 0)
 		m_amountOfTilePages++;
 
-	std::cout << "tile pages = " << m_amountOfTilePages << std::endl;
 	if(m_amountOfTilePages > 1)
 		m_buttons[index(ButtonID::ARROW_RIGHT)]->activate();
 	else

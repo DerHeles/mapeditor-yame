@@ -31,43 +31,33 @@ void TileMap::changeTile(unsigned int x, unsigned int y, int value)
 
 bool TileMap::load(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height, int tile_gap, const bool* collisionTiles)
 {
-	// load the tileset texture
 	if (!m_tileset.loadFromFile(tileset))
 		return false;
 
 	m_texturePath = tileset;
-
 	m_mapSize.x = width;
 	m_mapSize.y = height;
 	m_tileSize = tileSize;
-
 	m_tileGap = tile_gap;
 
-	// resize the vertex array to fit the level size
 	m_vertices.setPrimitiveType(sf::Quads);
 	m_vertices.resize(width * height * 4);
 
-	// populate the vertex array, with one quad per tile
 	for (unsigned int i = 0; i < width; ++i)
 		for (unsigned int j = 0; j < height; ++j)
 		{
-			// get the current tile number
 			int tileNumber = tiles[i + j * width];
 
-			// find its position in the tileset texture
 			int tu = tileNumber % (m_tileset.getSize().x / tileSize.x);
 			int tv = tileNumber / (m_tileset.getSize().x / tileSize.x);
 
-			// get a pointer to the current tile's quad
 			sf::Vertex* quad = &m_vertices[(i + j * width) * 4];
 
-			// define its 4 corners
 			quad[0].position = sf::Vector2f(i * tileSize.x, j * tileSize.y);
 			quad[1].position = sf::Vector2f((i + 1) * tileSize.x, j * tileSize.y);
 			quad[2].position = sf::Vector2f((i + 1) * tileSize.x, (j + 1) * tileSize.y);
 			quad[3].position = sf::Vector2f(i * tileSize.x, (j + 1) * tileSize.y);
 
-			// define its 4 texture coordinates
 			quad[0].texCoords = sf::Vector2f(tu * (tileSize.x + tile_gap), tv * (tileSize.y + tile_gap));
 			quad[1].texCoords = sf::Vector2f(tu * (tileSize.x + tile_gap) + tileSize.x, tv * (tileSize.y + tile_gap));
 			quad[2].texCoords = sf::Vector2f(tu * (tileSize.x + tile_gap) + tileSize.x, tv * (tileSize.y + tile_gap) + tileSize.y);
@@ -89,7 +79,6 @@ bool TileMap::load(const std::string& tileset, sf::Vector2u tileSize, const int*
 	for (unsigned int i = 0; i < width; ++i)
 		for (unsigned int j = 0; j < height; ++j)
 		{
-			// get a pointer to the current tile's quad
 			sf::Vertex* quad = &m_collisionVertices[(i + j * width) * 4];
 
 			quad[0].position = sf::Vector2f(i * tileSize.x, j * tileSize.y);
@@ -97,7 +86,6 @@ bool TileMap::load(const std::string& tileset, sf::Vector2u tileSize, const int*
 			quad[2].position = sf::Vector2f((i + 1) * tileSize.x, (j + 1) * tileSize.y);
 			quad[3].position = sf::Vector2f(i * tileSize.x, (j + 1) * tileSize.y);
 
-			// define its 4 corners
 			if(m_collisionTiles[i + j * width])
 			{
 				quad[0].color = sf::Color(0, 0, 255, 140);
@@ -280,7 +268,6 @@ void TileMap::changeCollisionTilesFromRectangle(sf::FloatRect rect, bool collisi
 
 bool TileMap::reload(const std::string& tileset, sf::Vector2u tileSize, unsigned int tile_gap)
 {
-	// load the tileset texture
 	if (!m_tileset.loadFromFile(tileset))
 		return false;
 
@@ -289,34 +276,26 @@ bool TileMap::reload(const std::string& tileset, sf::Vector2u tileSize, unsigned
 	m_tileSize = tileSize;
 	m_tileGap = tile_gap;
 
-	// populate the vertex array, with one quad per tile
 	for (unsigned int i = 0; i < m_mapSize.x; ++i)
 		for (unsigned int j = 0; j < m_mapSize.y; ++j)
 		{
-			// get the current tile number
 			int tileNumber = m_tiles[i + j * m_mapSize.x];
 
-			// find its position in the tileset texture
 			int tu = tileNumber % (m_tileset.getSize().x / tileSize.x);
 			int tv = tileNumber / (m_tileset.getSize().x / tileSize.x);
 
-			// get a pointer to the current tile's quad
 			sf::Vertex* quad = &m_vertices[(i + j * m_mapSize.x) * 4];
 
-			// define its 4 corners
 			quad[0].position = sf::Vector2f(i * tileSize.x, j * tileSize.y);
 			quad[1].position = sf::Vector2f((i + 1) * tileSize.x, j * tileSize.y);
 			quad[2].position = sf::Vector2f((i + 1) * tileSize.x, (j + 1) * tileSize.y);
 			quad[3].position = sf::Vector2f(i * tileSize.x, (j + 1) * tileSize.y);
 
-			// define its 4 texture coordinates
 			quad[0].texCoords = sf::Vector2f(tu * (m_tileSize.x + m_tileGap), tv * (m_tileSize.y + m_tileGap));
 			quad[1].texCoords = sf::Vector2f(tu * (m_tileSize.x + m_tileGap) + m_tileSize.x, tv * (m_tileSize.y + m_tileGap));
 			quad[2].texCoords = sf::Vector2f(tu * (m_tileSize.x + m_tileGap) + m_tileSize.x, tv * (m_tileSize.y + m_tileGap) + m_tileSize.y);
 			quad[3].texCoords = sf::Vector2f(tu * (m_tileSize.x + m_tileGap), tv * (m_tileSize.y + m_tileGap) + m_tileSize.y);
 
-
-			// get a pointer to the current tile's quad
 			sf::Vertex* quad2 = &m_collisionVertices[(i + j * m_mapSize.x) * 4];
 
 			quad2[0].position = sf::Vector2f(i * tileSize.x, j * tileSize.y);
@@ -329,13 +308,9 @@ bool TileMap::reload(const std::string& tileset, sf::Vector2u tileSize, unsigned
 
 void TileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-	// apply the transform
 	states.transform *= getTransform();
-
-	// apply the tileset texture
 	states.texture = &m_tileset;
 
-	// draw the vertex array
 	target.draw(m_vertices, states);
 
 	if (m_showCollisionLayer)
@@ -344,17 +319,13 @@ void TileMap::draw(sf::RenderTarget& target, sf::RenderStates states) const
 
 void TileMap::updateVertices(unsigned int x, unsigned int y)
 {
-	// get the current tile number
 	int tileNumber = m_tiles[x + y * m_mapSize.x];
 
-	// find its position in the tileset texture
 	int tu = tileNumber % (m_tileset.getSize().x / m_tileSize.x);
 	int tv = tileNumber / (m_tileset.getSize().x / m_tileSize.x);
 
-	// get a pointer to the current tile's quad
 	sf::Vertex* quad = &m_vertices[(x + y * m_mapSize.x) * 4];
 
-	// define its 4 texture coordinates
 	quad[0].texCoords = sf::Vector2f(tu * (m_tileSize.x + m_tileGap), tv * (m_tileSize.y + m_tileGap));
 	quad[1].texCoords = sf::Vector2f(tu * (m_tileSize.x + m_tileGap) + m_tileSize.x, tv * (m_tileSize.y + m_tileGap));
 	quad[2].texCoords = sf::Vector2f(tu * (m_tileSize.x + m_tileGap) + m_tileSize.x, tv * (m_tileSize.y + m_tileGap) + m_tileSize.y);
@@ -363,7 +334,6 @@ void TileMap::updateVertices(unsigned int x, unsigned int y)
 
 void TileMap::updateCollisionVertices(unsigned int x, unsigned int y, bool collision)
 {
-	// get a pointer to the current tile's quad
 	sf::Vertex* quad = &m_collisionVertices[(x + y * m_mapSize.x) * 4];
 	if (collision)
 	{
