@@ -1,2 +1,2 @@
 # mapeditor-yame
-T&amp;P-Projekt
+Map Editor for 2D tile based games.
