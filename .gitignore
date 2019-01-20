@@ -9,9 +9,9 @@
 
 #custom files
 *.tlog
-SFML-2.3.2/doc/
-SFML-2.3.2/examples/
-SFML-2.3.2/cmake
+Mapeditor/SFML-2.3.2/doc/
+Mapeditor/SFML-2.3.2/examples/
+Mapeditor/SFML-2.3.2/cmake/
 
 # Build results
 
