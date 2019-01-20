@@ -9,7 +9,9 @@
 
 #custom files
 *.tlog
-*/SFML-2.3.2/*
+SFML-2.3.2/doc/
+SFML-2.3.2/examples/
+SFML-2.3.2/cmake
 
 # Build results
 
@@ -163,3 +165,4 @@ $RECYCLE.BIN/
 .DS_Store
 Mapeditor/Mapeditor.VC.db
 Mapeditor/Mapeditor.VC.VC.opendb
+Mapeditor/.vs/Mapeditor/v15/Browse.VC.db
